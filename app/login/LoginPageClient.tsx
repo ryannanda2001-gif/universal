@@ -70,7 +70,7 @@ export default function LoginPageClient() {
   return (
     <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-blue-100 p-8">
       <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold text-slate-800">Login Admin</h1>
+        <h1 className="text-3xl font-bold text-slate-800 font-brand">Login Admin</h1>
         <p className="text-slate-500 mt-2">Masuk dengan akun admin Anda untuk mengelola produk.</p>
       </div>
 
@@ -81,7 +81,7 @@ export default function LoginPageClient() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-xl border border-slate-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            className="w-full rounded-xl border border-slate-300 bg-white text-slate-900 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-cyan-500"
             placeholder="admin@email.com"
             required
           />
@@ -93,7 +93,7 @@ export default function LoginPageClient() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded-xl border border-slate-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            className="w-full rounded-xl border border-slate-300 bg-white text-slate-900 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-cyan-500"
             placeholder="Masukkan password"
             required
           />

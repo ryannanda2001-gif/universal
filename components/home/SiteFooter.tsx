@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 import { WHATSAPP_NUMBER } from '@/lib/homepage';
 
 export function SiteFooter() {
@@ -6,7 +8,7 @@ export function SiteFooter() {
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div>
-            <h4 className="text-white font-bold text-lg mb-4">Universal Komputer</h4>
+            <h4 className="text-white font-bold text-lg mb-4 font-brand">Universal Komputer</h4>
             <p className="text-sm leading-relaxed text-gray-400">
               Toko komputer terpercaya untuk kebutuhan teknologi Anda. Menyediakan produk berkualitas dengan harga terjangkau.
             </p>
@@ -15,9 +17,8 @@ export function SiteFooter() {
           <div>
             <h4 className="text-white font-bold text-lg mb-4">Menu</h4>
             <ul className="space-y-2 text-sm">
-              <li><a href="#home" className="text-gray-400 hover:text-white transition-colors">Home</a></li>
-              <li><a href="#beli" className="text-gray-400 hover:text-white transition-colors">Produk</a></li>
-              <li><a href="#hubungi" className="text-gray-400 hover:text-white transition-colors">Kontak</a></li>
+              <li><Link href="/" className="text-gray-400 hover:text-white transition-colors">Home</Link></li>
+              <li><Link href="/products" className="text-gray-400 hover:text-white transition-colors">Produk</Link></li>
             </ul>
           </div>
 

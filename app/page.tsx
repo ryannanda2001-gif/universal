@@ -11,20 +11,24 @@ import { ServicesSection } from '@/components/home/ServicesSection';
 import { SiteFooter } from '@/components/home/SiteFooter';
 import { StatsSection } from '@/components/home/StatsSection';
 import { WhatsAppFloatingButton } from '@/components/home/WhatsAppFloatingButton';
+import { useProductOrdering } from '@/hooks/use-product-ordering';
 import { useProducts } from '@/hooks/use-products';
 import { filterProductsByCategory } from '@/lib/homepage';
+import { rememberPreferredCategory } from '@/lib/product-preferences';
 import type { Product } from '@/lib/product-schema';
 
 export default function Home() {
   const { products, isLoadingProducts, productsError } = useProducts();
+  const orderedProducts = useProductOrdering(products);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('Semua');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  const filteredProducts = filterProductsByCategory(products, selectedCategory);
+  const filteredProducts = filterProductsByCategory(orderedProducts, selectedCategory);
 
   const handleViewProduct = (product: Product) => {
+    rememberPreferredCategory(product.category);
     setSelectedProduct(product);
     setCurrentImageIndex(0);
   };
@@ -55,7 +59,10 @@ export default function Home() {
         isLoadingProducts={isLoadingProducts}
         productsError={productsError}
         selectedCategory={selectedCategory}
-        onSelectCategory={setSelectedCategory}
+        onSelectCategory={(category) => {
+          rememberPreferredCategory(category);
+          setSelectedCategory(category);
+        }}
         onViewProduct={handleViewProduct}
       />
 

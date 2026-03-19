@@ -1,3 +1,6 @@
+import Link from 'next/link';
+import { useRef } from 'react';
+
 import type { Product } from '@/lib/product-schema';
 import { HOMEPAGE_CATEGORIES } from '@/lib/homepage';
 
@@ -22,6 +25,17 @@ export function ProductsSection({
   onSelectCategory,
   onViewProduct,
 }: ProductsSectionProps) {
+  const scrollerRef = useRef<HTMLDivElement | null>(null);
+
+  const scrollProducts = (direction: 'left' | 'right') => {
+    if (!scrollerRef.current) return;
+    const offset = scrollerRef.current.clientWidth * 0.9;
+    scrollerRef.current.scrollBy({
+      left: direction === 'right' ? offset : -offset,
+      behavior: 'smooth',
+    });
+  };
+
   return (
     <section id="beli" className="py-12 md:py-16 px-4 bg-linear-to-b from-white to-gray-50">
       <div className="max-w-7xl mx-auto">
@@ -32,7 +46,7 @@ export function ProductsSection({
           <p className="text-gray-600 text-lg">Pilih kategori untuk melihat produk yang tersedia</p>
         </div>
 
-        <div className="flex flex-wrap gap-2 mb-12 justify-center">
+        <div className="flex flex-wrap gap-2 mb-8 justify-center">
           {HOMEPAGE_CATEGORIES.map((category) => (
             <button
               key={category}
@@ -47,6 +61,36 @@ export function ProductsSection({
               {category}
             </button>
           ))}
+        </div>
+
+        <div className="flex items-center justify-between gap-3 mb-6">
+          <div>
+            <p className="text-sm text-gray-500">Tampilan homepage dibatasi 2 baris agar lebih rapi di mobile dan desktop.</p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => scrollProducts('left')}
+              className="h-10 w-10 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-100"
+              aria-label="Geser produk ke kiri"
+            >
+              ‹
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollProducts('right')}
+              className="h-10 w-10 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-100"
+              aria-label="Geser produk ke kanan"
+            >
+              ›
+            </button>
+            <Link
+              href="/products"
+              className="px-4 py-2 rounded-full bg-linear-to-r from-blue-600 to-cyan-500 text-white font-semibold hover:shadow-lg transition-all"
+            >
+              Lihat Semua
+            </Link>
+          </div>
         </div>
 
         {isLoadingProducts ? (
@@ -68,7 +112,10 @@ export function ProductsSection({
             <p className="text-gray-600 text-lg">Tidak ada produk di kategori ini</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          <div
+            ref={scrollerRef}
+            className="grid grid-rows-2 grid-flow-col auto-cols-[minmax(165px,1fr)] md:auto-cols-[220px] gap-4 overflow-x-auto pb-4 scrollbar-hide"
+          >
             {filteredProducts.map((product) => (
               <ProductCard key={product.id} product={product} onViewDetail={onViewProduct} />
             ))}

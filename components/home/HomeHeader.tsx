@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 type HomeHeaderProps = {
   isMenuOpen: boolean;
   onToggleMenu: () => void;
@@ -8,12 +10,11 @@ export function HomeHeader({ isMenuOpen, onToggleMenu, onCloseMenu }: HomeHeader
   return (
     <header className="bg-linear-to-r from-blue-600 via-blue-500 to-cyan-500 text-white py-4 sticky top-0 z-50 shadow-lg">
       <div className="max-w-7xl mx-auto px-4 flex justify-between items-center">
-        <h1 className="text-xl md:text-2xl font-bold tracking-wide">Universal Komputer</h1>
+        <Link href="/" className="text-xl md:text-2xl font-bold tracking-wide font-brand">Universal Komputer</Link>
 
         <nav className="hidden md:flex space-x-6">
-          <a href="#home" className="hover:underline">Home</a>
-          <a href="#beli" className="hover:underline">Beli Sekarang</a>
-          <a href="#hubungi" className="hover:underline">Hubungi Kami</a>
+          <Link href="/" className="hover:underline">Home</Link>
+          <Link href="/products" className="hover:underline">Produk</Link>
         </nav>
 
         <button className="md:hidden text-white focus:outline-none" onClick={onToggleMenu} type="button">
@@ -30,9 +31,8 @@ export function HomeHeader({ isMenuOpen, onToggleMenu, onCloseMenu }: HomeHeader
       {isMenuOpen ? (
         <div className="md:hidden bg-linear-to-b from-blue-700 to-blue-600 px-4 py-4">
           <nav className="flex flex-col space-y-3">
-            <a href="#home" className="hover:underline" onClick={onCloseMenu}>Home</a>
-            <a href="#beli" className="hover:underline" onClick={onCloseMenu}>Beli Sekarang</a>
-            <a href="#hubungi" className="hover:underline" onClick={onCloseMenu}>Hubungi Kami</a>
+            <Link href="/" className="hover:underline" onClick={onCloseMenu}>Home</Link>
+            <Link href="/products" className="hover:underline" onClick={onCloseMenu}>Produk</Link>
           </nav>
         </div>
       ) : null}

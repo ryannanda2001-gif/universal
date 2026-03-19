@@ -120,7 +120,7 @@ export default function AdminPage() {
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
     const file = e.target.files?.[0];
-    if (file && formData.images.length - 1 < MAX_IMAGES) {
+    if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
         const newImages = [...formData.images];
@@ -139,7 +139,7 @@ export default function AdminPage() {
   const handleRemoveImage = (index: number) => {
     setFormData(prev => ({
       ...prev,
-      images: prev.images.filter((_, i) => i !== index)
+      images: prev.images.map((image, currentIndex) => (currentIndex === index ? '' : image))
     }));
   };
 
@@ -223,7 +223,7 @@ export default function AdminPage() {
       discount: product.discount ? formatDiscountInput(product.discount.toString()) : '',
       description: product.description,
       category: product.category,
-      images: product.images,
+      images: [...product.images, ...Array(MAX_IMAGES).fill('')].slice(0, MAX_IMAGES),
       stock: product.stock ? product.stock.toString() : ''
     });
     setEditingId(product.id);
@@ -248,7 +248,7 @@ export default function AdminPage() {
       discount: '',
       description: '',
       category: 'Laptop',
-      images: [],
+      images: Array(MAX_IMAGES).fill(''),
       stock: ''
     });
     setShowForm(false);
@@ -278,19 +278,19 @@ export default function AdminPage() {
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center gap-3">
             <div>
-              <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+              <h1 className="text-3xl font-bold font-brand">Admin Dashboard</h1>
               <p className="text-blue-100 mt-2">Kelola produk Universal Komputer</p>
             </div>
             <Link
               href="/"
-              className="bg-white text-blue-600 px-6 py-2 rounded-lg font-bold hover:bg-blue-50 transition-colors"
+              className="bg-white/15 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-white/25 transition-colors"
             >
               ← Kembali ke Homepage
             </Link>
             <button
               type="button"
               onClick={handleLogout}
-              className="bg-blue-900 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-950 transition-colors"
+              className="bg-blue-900 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-950 transition-colors"
             >
               Logout
             </button>
@@ -334,7 +334,7 @@ export default function AdminPage() {
                     value={formData.name}
                     onChange={handleInputChange}
                     placeholder="Contoh: Laptop HP Pavilion"
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
+                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-slate-900 focus:border-blue-500 focus:outline-none transition-colors"
                   />
                 </div>
 
@@ -351,7 +351,7 @@ export default function AdminPage() {
                       value={formData.price}
                       onChange={handleInputChange}
                       placeholder="1500000"
-                      className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
+                      className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-slate-900 focus:border-blue-500 focus:outline-none transition-colors"
                     />
                   </div>
                   <p className="text-xs text-gray-500 mt-1">Otomatis di format (Rp 1.500.000)</p>
@@ -366,7 +366,7 @@ export default function AdminPage() {
                     name="category"
                     value={formData.category}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
+                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-slate-900 focus:border-blue-500 focus:outline-none transition-colors"
                   >
                     {categories.map(cat => (
                       <option key={cat} value={cat}>{cat}</option>
@@ -389,7 +389,7 @@ export default function AdminPage() {
                     onChange={handleInputChange}
                     min="0"
                     placeholder="5"
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
+                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-slate-900 focus:border-blue-500 focus:outline-none transition-colors"
                   />
                   <p className="text-xs text-gray-500 mt-1">Kosongkan jika stok habis</p>
                 </div>
@@ -407,7 +407,7 @@ export default function AdminPage() {
                       value={formData.discount}
                       onChange={handleInputChange}
                       placeholder="50.000"
-                      className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
+                      className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-slate-900 focus:border-blue-500 focus:outline-none transition-colors"
                     />
                   </div>
                   <p className="text-xs text-gray-500 mt-1">Kosongkan jika tidak ada diskon</p>
@@ -425,7 +425,7 @@ export default function AdminPage() {
                   onChange={handleInputChange}
                   placeholder="Jelaskan detail, spesifikasi, dan keunggulan produk..."
                   rows={4}
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors resize-none"
+                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-slate-900 focus:border-blue-500 focus:outline-none transition-colors resize-none"
                 />
               </div>
 
