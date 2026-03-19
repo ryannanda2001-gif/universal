@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 
 import { isAdminEmail } from '@/lib/auth';
 import { normalizeStoredProducts } from '@/lib/product-schema';
-import { readProducts, writeProducts } from '@/lib/products';
+import { deleteProductById, readProducts, replaceAllProducts, upsertProduct } from '@/lib/products';
 import { isSupabaseConfigured } from '@/lib/supabase-admin';
 import { createClient as createSupabaseServerClient } from '@/lib/supabase/server';
 
@@ -45,8 +45,25 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const normalizedProducts = normalizeStoredProducts(body);
-    const savedProducts = await writeProducts(normalizedProducts);
+    let savedProducts;
+
+    if (body?.action === 'replace_all') {
+      const normalizedProducts = normalizeStoredProducts(body.products);
+      savedProducts = await replaceAllProducts(normalizedProducts);
+    } else if (body?.action === 'upsert') {
+      const normalizedProduct = normalizeStoredProducts([body.product])[0];
+      savedProducts = await upsertProduct(normalizedProduct);
+    } else if (body?.action === 'delete') {
+      const productId = Number(body.id);
+      if (!Number.isFinite(productId)) {
+        return NextResponse.json({ message: 'ID produk tidak valid.' }, { status: 400 });
+      }
+
+      savedProducts = await deleteProductById(productId);
+    } else {
+      return NextResponse.json({ message: 'Payload produk tidak dikenali.' }, { status: 400 });
+    }
+
     return NextResponse.json(savedProducts);
   } catch (error) {
     console.error(error);

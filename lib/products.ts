@@ -10,11 +10,7 @@ const isMissingConditionColumnError = (message: string) => {
   return normalizedMessage.includes('condition') && normalizedMessage.includes('column');
 };
 
-export const readProducts = async () => {
-  if (!isSupabaseConfigured) {
-    return [];
-  }
-
+const loadProductsInternal = async () => {
   const supabase = getSupabaseAdmin();
   const primaryQuery = await supabase
     .from('products')
@@ -35,42 +31,121 @@ export const readProducts = async () => {
       throw new Error(`Failed to load products from Supabase: ${legacyQuery.error.message}`);
     }
 
-    return normalizeStoredProducts(legacyQuery.data);
+    return {
+      products: normalizeStoredProducts(legacyQuery.data),
+      hasConditionColumn: false,
+    };
   }
 
-  return normalizeStoredProducts(primaryQuery.data);
+  return {
+    products: normalizeStoredProducts(primaryQuery.data),
+    hasConditionColumn: true,
+  };
 };
 
-export const writeProducts = async (products: Product[]) => {
+const prepareUploadedProduct = async (product: Product): Promise<Product> => {
+  const normalizedProduct = normalizeStoredProducts([product])[0];
+  const uploadedImages = await uploadProductImages(normalizedProduct.id, normalizedProduct.images);
+
+  return {
+    ...normalizedProduct,
+    images: uploadedImages,
+  };
+};
+
+const upsertProductsInternal = async (products: Product[], hasConditionColumn: boolean) => {
+  const supabase = getSupabaseAdmin();
+
+  if (hasConditionColumn) {
+    const { error } = await supabase
+      .from('products')
+      .upsert(products, { onConflict: 'id' });
+
+    if (!error) return;
+
+    if (!isMissingConditionColumnError(error.message)) {
+      throw new Error(`Failed to save products to Supabase: ${error.message}`);
+    }
+  }
+
+  const legacyProducts = products.map((product) => ({
+    id: product.id,
+    name: product.name,
+    price: product.price,
+    discount: product.discount,
+    description: product.description,
+    category: product.category,
+    images: product.images,
+    stock: product.stock,
+  }));
+
+  const { error } = await supabase
+    .from('products')
+    .upsert(legacyProducts, { onConflict: 'id' });
+
+  if (error) {
+    throw new Error(`Failed to save products to Supabase: ${error.message}`);
+  }
+};
+
+export const readProducts = async () => {
+  if (!isSupabaseConfigured) {
+    return [];
+  }
+
+  const { products } = await loadProductsInternal();
+  return products;
+};
+
+export const upsertProduct = async (product: Product) => {
+  if (!isSupabaseConfigured) {
+    throw new Error('Supabase environment variables are not configured.');
+  }
+
+  const uploadedProduct = await prepareUploadedProduct(product);
+  const { hasConditionColumn } = await loadProductsInternal();
+  await upsertProductsInternal([uploadedProduct], hasConditionColumn);
+
+  return readProducts();
+};
+
+export const deleteProductById = async (id: number) => {
+  if (!isSupabaseConfigured) {
+    throw new Error('Supabase environment variables are not configured.');
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase
+    .from('products')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    throw new Error(`Failed to delete product from Supabase: ${error.message}`);
+  }
+
+  return readProducts();
+};
+
+export const replaceAllProducts = async (products: Product[]) => {
   if (!isSupabaseConfigured) {
     throw new Error('Supabase environment variables are not configured.');
   }
 
   const normalizedProducts = normalizeStoredProducts(products);
-  const productsWithUploadedImages: Product[] = [];
+  const uploadedProducts: Product[] = [];
 
   for (const product of normalizedProducts) {
-    const uploadedImages = await uploadProductImages(product.id, product.images);
-    productsWithUploadedImages.push({
-      ...product,
-      images: uploadedImages,
-    });
+    uploadedProducts.push(await prepareUploadedProduct(product));
   }
+
+  const { products: existingProducts, hasConditionColumn } = await loadProductsInternal();
+  const incomingIds = uploadedProducts.map((product) => product.id);
+  const idsToDelete = existingProducts
+    .map((product) => product.id)
+    .filter((existingId) => !incomingIds.includes(existingId));
 
   const supabase = getSupabaseAdmin();
-  const incomingIds = productsWithUploadedImages.map((product) => product.id);
-
-  const { data: existingProducts, error: existingError } = await supabase
-    .from('products')
-    .select('id');
-
-  if (existingError) {
-    throw new Error(`Failed to read existing products from Supabase: ${existingError.message}`);
-  }
-
-  const idsToDelete = (existingProducts ?? [])
-    .map((product) => product.id)
-    .filter((id) => !incomingIds.includes(id));
 
   if (idsToDelete.length > 0) {
     const { error: deleteError } = await supabase
@@ -83,35 +158,9 @@ export const writeProducts = async (products: Product[]) => {
     }
   }
 
-  if (productsWithUploadedImages.length > 0) {
-    const withConditionUpsert = await supabase
-      .from('products')
-      .upsert(productsWithUploadedImages, { onConflict: 'id' });
-
-    if (withConditionUpsert.error) {
-      if (!isMissingConditionColumnError(withConditionUpsert.error.message)) {
-        throw new Error(`Failed to save products to Supabase: ${withConditionUpsert.error.message}`);
-      }
-
-      const legacyProducts = productsWithUploadedImages.map((product) => ({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        discount: product.discount,
-        description: product.description,
-        category: product.category,
-        images: product.images,
-        stock: product.stock,
-      }));
-      const legacyUpsert = await supabase
-        .from('products')
-        .upsert(legacyProducts, { onConflict: 'id' });
-
-      if (legacyUpsert.error) {
-        throw new Error(`Failed to save products to Supabase: ${legacyUpsert.error.message}`);
-      }
-    }
+  if (uploadedProducts.length > 0) {
+    await upsertProductsInternal(uploadedProducts, hasConditionColumn);
   }
 
-  return productsWithUploadedImages;
+  return readProducts();
 };

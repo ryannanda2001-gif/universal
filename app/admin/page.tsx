@@ -42,7 +42,7 @@ export default function AdminPage() {
           const legacyProducts = localStorage.getItem('products');
           if (legacyProducts) {
             const normalizedLegacyProducts = normalizeStoredProducts(JSON.parse(legacyProducts));
-            await saveProducts(normalizedLegacyProducts);
+            await replaceAllProducts(normalizedLegacyProducts);
             return;
           }
         }
@@ -74,18 +74,65 @@ export default function AdminPage() {
     return numStr.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
   };
 
-  const saveProducts = async (updatedProducts: Product[]) => {
+  const replaceAllProducts = async (updatedProducts: Product[]) => {
     const response = await fetch('/api/products', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(updatedProducts),
+      body: JSON.stringify({
+        action: 'replace_all',
+        products: updatedProducts,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = (await response.json()) as { message?: string };
+      throw new Error(errorData.message || 'Gagal mengganti data produk');
+    }
+
+    const savedProducts = (await response.json()) as Product[];
+    setProducts(savedProducts);
+    setProductsError('');
+  };
+
+  const saveSingleProduct = async (product: Product) => {
+    const response = await fetch('/api/products', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        action: 'upsert',
+        product,
+      }),
     });
 
     if (!response.ok) {
       const errorData = (await response.json()) as { message?: string };
       throw new Error(errorData.message || 'Gagal menyimpan produk');
+    }
+
+    const savedProducts = (await response.json()) as Product[];
+    setProducts(savedProducts);
+    setProductsError('');
+  };
+
+  const deleteSingleProduct = async (id: number) => {
+    const response = await fetch('/api/products', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        action: 'delete',
+        id,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = (await response.json()) as { message?: string };
+      throw new Error(errorData.message || 'Gagal menghapus produk');
     }
 
     const savedProducts = (await response.json()) as Product[];
@@ -202,12 +249,9 @@ export default function AdminPage() {
     };
 
     try {
+      await saveSingleProduct(productData);
       if (editingId) {
-        const updated = products.map(p => p.id === editingId ? productData : p);
-        await saveProducts(updated);
         setEditingId(null);
-      } else {
-        await saveProducts([...products, productData]);
       }
 
       resetForm();
@@ -236,7 +280,7 @@ export default function AdminPage() {
   const handleDelete = async (id: number) => {
     if (confirm('Yakin ingin menghapus produk ini?')) {
       try {
-        await saveProducts(products.filter(p => p.id !== id));
+        await deleteSingleProduct(id);
       } catch (error) {
         console.error(error);
         alert('Gagal menghapus produk. Silakan coba lagi.');

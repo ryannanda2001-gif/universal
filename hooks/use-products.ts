@@ -28,7 +28,10 @@ export const useProducts = () => {
               headers: {
                 'Content-Type': 'application/json',
               },
-              body: legacyProducts,
+              body: JSON.stringify({
+                action: 'replace_all',
+                products: JSON.parse(legacyProducts),
+              }),
             });
 
             if (migrateResponse.ok) {
