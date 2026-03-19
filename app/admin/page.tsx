@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { PRODUCT_CATEGORIES, PRODUCT_CONDITIONS } from '@/lib/homepage';
 import type { Product } from '@/lib/product-schema';
 import { normalizeStoredProducts } from '@/lib/product-schema';
@@ -12,6 +12,7 @@ const MAX_IMAGES = 5;
 
 export default function AdminPage() {
   const router = useRouter();
+  const importInputRef = useRef<HTMLInputElement | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
   const [productsError, setProductsError] = useState('');
@@ -138,6 +139,50 @@ export default function AdminPage() {
     const savedProducts = (await response.json()) as Product[];
     setProducts(savedProducts);
     setProductsError('');
+  };
+
+  const downloadBackup = () => {
+    const backupPayload = JSON.stringify(products, null, 2);
+    const blob = new Blob([backupPayload], { type: 'application/json' });
+    const objectUrl = URL.createObjectURL(blob);
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const link = document.createElement('a');
+    link.href = objectUrl;
+    link.download = `universal-products-backup-${timestamp}.json`;
+    link.click();
+    URL.revokeObjectURL(objectUrl);
+  };
+
+  const handleImportBackup = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const fileContent = await file.text();
+      const parsed = JSON.parse(fileContent);
+      const normalizedProducts = normalizeStoredProducts(parsed);
+
+      if (normalizedProducts.length === 0) {
+        alert('File backup kosong atau formatnya tidak valid.');
+        return;
+      }
+
+      const isConfirmed = confirm(
+        `Import backup akan mengganti seluruh data produk saat ini dengan ${normalizedProducts.length} produk dari file. Lanjutkan?`
+      );
+
+      if (!isConfirmed) return;
+
+      await replaceAllProducts(normalizedProducts);
+      alert('Backup berhasil diimport.');
+    } catch (error) {
+      console.error(error);
+      alert('File backup gagal dibaca. Pastikan format JSON valid.');
+    } finally {
+      if (event.target) {
+        event.target.value = '';
+      }
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -348,6 +393,38 @@ export default function AdminPage() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-12">
+        <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className="text-sm font-semibold text-slate-700">Backup Data Produk</p>
+            <p className="text-sm text-slate-500">Simpan cadangan JSON secara berkala sebelum update besar atau import data.</p>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={downloadBackup}
+              disabled={products.length === 0}
+              className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Export Backup
+            </button>
+            <button
+              type="button"
+              onClick={() => importInputRef.current?.click()}
+              className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100"
+            >
+              Import Backup
+            </button>
+            <input
+              ref={importInputRef}
+              type="file"
+              accept=".json,application/json"
+              className="hidden"
+              onChange={handleImportBackup}
+            />
+          </div>
+        </div>
+
         {/* Add Button */}
         {!showForm && (
           <button
