@@ -37,87 +37,99 @@ export function ProductsSection({
   };
 
   return (
-    <section id="beli" className="py-12 md:py-16 px-4 bg-linear-to-b from-white to-gray-50">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-10">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4 bg-linear-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
-            Produk & Paket Kami
-          </h2>
-          <p className="text-gray-600 text-lg">Pilih kategori untuk melihat produk yang tersedia</p>
-        </div>
+    <section id="beli" className="bg-linear-to-b from-white via-slate-50 to-white px-4 py-14 md:py-20">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-10 flex flex-col gap-6 rounded-[32px] border border-slate-200/70 bg-white/90 p-6 shadow-[0_24px_80px_-48px_rgba(15,23,42,0.35)] backdrop-blur md:p-8">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-2xl animate-fade-in-up">
+              <p className="mb-3 text-sm font-semibold uppercase tracking-[0.28em] text-cyan-600">Pilihan Produk</p>
+              <h2 className="mb-3 text-3xl font-bold text-slate-900 md:text-4xl">
+                Produk & Paket Universal Komputer
+              </h2>
+              <p className="text-base leading-7 text-slate-600">
+                Jelajahi perangkat, komponen, dan paket rakitan dengan tampilan yang lebih rapi seperti katalog komersial.
+              </p>
+            </div>
 
-        <div className="flex flex-wrap gap-2 mb-8 justify-center">
-          {HOMEPAGE_CATEGORIES.map((category) => (
-            <button
-              key={category}
-              type="button"
-              onClick={() => onSelectCategory(category)}
-              className={`px-6 py-2 rounded-full font-semibold transition-all duration-200 ${
-                selectedCategory === category
-                  ? 'bg-linear-to-r from-blue-600 to-cyan-500 text-white shadow-lg'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              }`}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
-
-        <div className="flex items-center justify-between gap-3 mb-6">
-          <div>
-            <p className="text-sm text-gray-500">Tampilan homepage dibatasi 2 baris agar lebih rapi di mobile dan desktop.</p>
+            <div className="flex items-center gap-2 self-start lg:self-auto">
+              <button
+                type="button"
+                onClick={() => scrollProducts('left')}
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-slate-300 bg-white text-lg font-bold text-slate-700 transition hover:-translate-y-0.5 hover:border-blue-500 hover:text-blue-600"
+                aria-label="Geser produk ke kiri"
+              >
+                ‹
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollProducts('right')}
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-slate-300 bg-white text-lg font-bold text-slate-700 transition hover:-translate-y-0.5 hover:border-blue-500 hover:text-blue-600"
+                aria-label="Geser produk ke kanan"
+              >
+                ›
+              </button>
+              <Link
+                href="/products"
+                className="rounded-full bg-linear-to-r from-blue-600 to-cyan-500 px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:shadow-lg"
+              >
+                Lihat Semua Produk
+              </Link>
+            </div>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <button
-              type="button"
-              onClick={() => scrollProducts('left')}
-              className="h-10 w-10 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-100"
-              aria-label="Geser produk ke kiri"
-            >
-              ‹
-            </button>
-            <button
-              type="button"
-              onClick={() => scrollProducts('right')}
-              className="h-10 w-10 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-100"
-              aria-label="Geser produk ke kanan"
-            >
-              ›
-            </button>
-            <Link
-              href="/products"
-              className="px-4 py-2 rounded-full bg-linear-to-r from-blue-600 to-cyan-500 text-white font-semibold hover:shadow-lg transition-all"
-            >
-              Lihat Semua
-            </Link>
+
+          <div className="flex flex-wrap gap-2">
+            {HOMEPAGE_CATEGORIES.map((category) => (
+              <button
+                key={category}
+                type="button"
+                onClick={() => onSelectCategory(category)}
+                className={`rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-200 ${
+                  selectedCategory === category
+                    ? 'bg-linear-to-r from-blue-600 to-cyan-500 text-white shadow-lg'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                }`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex flex-col gap-2 text-sm text-slate-500 md:flex-row md:items-center md:justify-between">
+            <p>*Harga dapat berubah sewaktu-waktu mengikuti stok dan kondisi barang.</p>
+            <p>{filteredProducts.length} produk tampil di etalase ini</p>
           </div>
         </div>
 
         {isLoadingProducts ? (
-          <div className="text-center py-16">
-            <p className="text-gray-600 text-lg">Sedang memuat produk...</p>
+          <div className="py-16 text-center">
+            <p className="text-lg text-slate-600">Sedang memuat produk...</p>
           </div>
         ) : productsError ? (
-          <div className="text-center py-16">
-            <p className="text-red-600 text-lg mb-2">Produk belum bisa dimuat</p>
-            <p className="text-gray-500">{productsError}</p>
+          <div className="py-16 text-center">
+            <p className="mb-2 text-lg text-red-600">Produk belum bisa dimuat</p>
+            <p className="text-slate-500">{productsError}</p>
           </div>
         ) : products.length === 0 ? (
-          <div className="text-center py-16">
-            <p className="text-gray-600 text-lg mb-4">Belum ada produk ditambahkan</p>
-            <p className="text-gray-500">Hubungi admin untuk informasi produk terbaru</p>
+          <div className="py-16 text-center">
+            <p className="mb-4 text-lg text-slate-600">Belum ada produk ditambahkan</p>
+            <p className="text-slate-500">Hubungi admin untuk informasi produk terbaru</p>
           </div>
         ) : filteredProducts.length === 0 ? (
-          <div className="text-center py-16">
-            <p className="text-gray-600 text-lg">Tidak ada produk di kategori ini</p>
+          <div className="py-16 text-center">
+            <p className="text-lg text-slate-600">Tidak ada produk di kategori ini</p>
           </div>
         ) : (
           <div
             ref={scrollerRef}
-            className="grid grid-rows-2 grid-flow-col auto-cols-[minmax(165px,1fr)] md:auto-cols-[220px] gap-4 overflow-x-auto pb-4 scrollbar-hide"
+            className="grid grid-flow-col grid-rows-2 auto-cols-[minmax(220px,1fr)] gap-5 overflow-x-auto pb-4 scrollbar-hide md:auto-cols-[280px]"
           >
-            {filteredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} onViewDetail={onViewProduct} />
+            {filteredProducts.map((product, index) => (
+              <div
+                key={product.id}
+                className={index % 4 === 1 ? 'animation-delay-200' : index % 4 === 2 ? 'animation-delay-400' : ''}
+              >
+                <ProductCard product={product} onViewDetail={onViewProduct} />
+              </div>
             ))}
           </div>
         )}

@@ -47,14 +47,14 @@ export default function ProductsPage() {
         onCloseMenu={() => setIsMenuOpen(false)}
       />
 
-      <section className="py-12 md:py-16 px-4 bg-linear-to-b from-white to-gray-50">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-10">
-            <h1 className="text-3xl md:text-4xl font-bold font-brand text-gray-900 mb-3">Semua Produk</h1>
-            <p className="text-gray-600 text-lg">Tampilan lengkap semua produk dengan urutan yang menyesuaikan preferensi pengunjung.</p>
+      <section className="bg-linear-to-b from-white via-slate-50 to-white px-4 py-12 md:py-16">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-10 rounded-[32px] border border-slate-200/70 bg-white/90 p-6 shadow-[0_24px_80px_-48px_rgba(15,23,42,0.35)] backdrop-blur md:p-8">
+            <h1 className="mb-3 text-3xl font-bold font-brand text-slate-900 md:text-4xl">Semua Produk</h1>
+            <p className="text-lg text-slate-600">Tampilan lengkap semua produk dengan urutan yang menyesuaikan preferensi pengunjung.</p>
           </div>
 
-          <div className="flex flex-wrap gap-2 mb-10">
+          <div className="mb-10 flex flex-wrap gap-2">
             {HOMEPAGE_CATEGORIES.map((category) => (
               <button
                 key={category}
@@ -66,7 +66,7 @@ export default function ProductsPage() {
                 className={`px-5 py-2 rounded-full font-semibold transition-all ${
                   selectedCategory === category
                     ? 'bg-linear-to-r from-blue-600 to-cyan-500 text-white shadow-lg'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                 }`}
               >
                 {category}
@@ -84,9 +84,14 @@ export default function ProductsPage() {
           ) : filteredProducts.length === 0 ? (
             <div className="text-center py-16 text-gray-600 text-lg">Belum ada produk yang cocok di kategori ini.</div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-              {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} onViewDetail={handleViewProduct} />
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+              {filteredProducts.map((product, index) => (
+                <div
+                  key={product.id}
+                  className={index % 4 === 1 ? 'animation-delay-200' : index % 4 === 2 ? 'animation-delay-400' : ''}
+                >
+                  <ProductCard product={product} onViewDetail={handleViewProduct} />
+                </div>
               ))}
             </div>
           )}

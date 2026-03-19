@@ -2,12 +2,27 @@ import type { Product } from '@/lib/product-schema';
 
 export const WHATSAPP_NUMBER = '6281289689799';
 
-export const HOMEPAGE_CATEGORIES = ['Semua', 'Laptop', 'PC', 'Printer', 'Storage', 'RAM & CPU', 'Aksesoris'];
+export const PRODUCT_CATEGORIES = [
+  'Laptop',
+  'PC',
+  'Printer',
+  'Storage',
+  'RAM',
+  'CPU',
+  'Power Supply',
+  'Monitor',
+  'Motherboard',
+  'Aksesoris',
+] as const;
+
+export const PRODUCT_CONDITIONS = ['Baru', 'Second'] as const;
+
+export const HOMEPAGE_CATEGORIES = ['Semua', ...PRODUCT_CATEGORIES];
 
 export const STORE_STATS = [
-  { value: '1000+', label: 'Service Berhasil' },
-  { value: '500+', label: 'Pelanggan Puas' },
-  { value: '98%', label: 'Rate Keberhasilan' },
+  { value: 1000, suffix: '+', label: 'Service Berhasil' },
+  { value: 500, suffix: '+', label: 'Pelanggan Puas' },
+  { value: 98, suffix: '%', label: 'Rate Keberhasilan' },
 ];
 
 export const STORE_SERVICES = [
@@ -42,6 +57,9 @@ export const getStockStatus = (stock: number) => {
   if (stock <= 3) return { text: 'Terbatas', color: 'bg-orange-500' };
   return { text: 'Ready Stock', color: 'bg-green-500' };
 };
+
+export const getConditionLabel = (condition: Product['condition']) =>
+  condition === 'Second' ? 'Second' : 'Baru';
 
 export const buildWhatsAppProductUrl = (product: Pick<Product, 'name' | 'price'>) =>
   `https://wa.me/${WHATSAPP_NUMBER}?text=Halo%20admin%2C%20saya%20tertarik%20dengan%20produk%20${encodeURIComponent(product.name)}%20(${encodeURIComponent(product.price)})`;

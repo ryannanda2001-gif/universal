@@ -10,7 +10,7 @@ export const readProducts = async () => {
   const supabase = getSupabaseAdmin();
   const { data, error } = await supabase
     .from('products')
-    .select('id, name, price, discount, description, category, images, stock')
+    .select('id, name, price, discount, description, category, condition, images, stock')
     .order('id', { ascending: true });
 
   if (error) {

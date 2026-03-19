@@ -4,6 +4,7 @@ import {
   calculateDiscountedPrice,
   extractNumericPrice,
   formatPrice,
+  getConditionLabel,
   getStockStatus,
 } from '@/lib/homepage';
 
@@ -88,9 +89,12 @@ export function ProductDetailModal({
         </div>
 
         <div className="w-full md:w-1/2 p-6 md:p-8 overflow-y-auto space-y-4 flex flex-col">
-          <div>
-            <span className="inline-block bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">
+          <div className="flex flex-wrap gap-2">
+            <span className="inline-block rounded-full bg-blue-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-blue-700">
               {product.category}
+            </span>
+            <span className="inline-block rounded-full bg-slate-200 px-3 py-1 text-xs font-bold tracking-wide text-slate-700">
+              {getConditionLabel(product.condition)}
             </span>
           </div>
 
@@ -117,6 +121,17 @@ export function ProductDetailModal({
                 <p className="text-2xl font-bold text-blue-700">{formatPrice(extractNumericPrice(product.price))}</p>
               </div>
             )}
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-lg bg-slate-50 p-4">
+              <h3 className="mb-1 text-xs font-bold uppercase tracking-wide text-slate-500">Stok</h3>
+              <p className="text-sm font-semibold text-slate-800">Tersedia {product.stock} pcs</p>
+            </div>
+            <div className="rounded-lg bg-slate-50 p-4">
+              <h3 className="mb-1 text-xs font-bold uppercase tracking-wide text-slate-500">Kondisi</h3>
+              <p className="text-sm font-semibold text-slate-800">{getConditionLabel(product.condition)}</p>
+            </div>
           </div>
 
           <div className="flex-1 bg-gray-50 rounded-lg p-4">

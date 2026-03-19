@@ -3,12 +3,12 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { PRODUCT_CATEGORIES, PRODUCT_CONDITIONS } from '@/lib/homepage';
 import type { Product } from '@/lib/product-schema';
 import { normalizeStoredProducts } from '@/lib/product-schema';
 import { createClient as createSupabaseBrowserClient } from '@/lib/supabase/client';
 
 const MAX_IMAGES = 5;
-const categories = ['Laptop', 'PC', 'Printer', 'Storage', 'RAM & CPU', 'Aksesoris'];
 
 export default function AdminPage() {
   const router = useRouter();
@@ -23,6 +23,7 @@ export default function AdminPage() {
     discount: '',
     description: '',
     category: 'Laptop',
+    condition: 'Baru' as Product['condition'],
     images: Array(MAX_IMAGES).fill(''),
     stock: ''
   });
@@ -195,6 +196,7 @@ export default function AdminPage() {
       discount: discountValue,
       description: formData.description,
       category: formData.category,
+      condition: formData.condition,
       images: formData.images.filter(img => img),
       stock: stockValue
     };
@@ -223,6 +225,7 @@ export default function AdminPage() {
       discount: product.discount ? formatDiscountInput(product.discount.toString()) : '',
       description: product.description,
       category: product.category,
+      condition: product.condition,
       images: [...product.images, ...Array(MAX_IMAGES).fill('')].slice(0, MAX_IMAGES),
       stock: product.stock ? product.stock.toString() : ''
     });
@@ -248,6 +251,7 @@ export default function AdminPage() {
       discount: '',
       description: '',
       category: 'Laptop',
+      condition: 'Baru',
       images: Array(MAX_IMAGES).fill(''),
       stock: ''
     });
@@ -276,21 +280,21 @@ export default function AdminPage() {
       {/* Header */}
       <div className="bg-linear-to-r from-blue-600 to-cyan-500 text-white py-6 px-4 shadow-lg">
         <div className="max-w-7xl mx-auto">
-          <div className="flex justify-between items-center gap-3">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <h1 className="text-3xl font-bold font-brand">Admin Dashboard</h1>
               <p className="text-blue-100 mt-2">Kelola produk Universal Komputer</p>
             </div>
             <Link
               href="/"
-              className="bg-white/15 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-white/25 transition-colors"
+              className="rounded-lg border border-white/30 bg-white/10 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/20"
             >
-              ← Kembali ke Homepage
+              Home
             </Link>
             <button
               type="button"
               onClick={handleLogout}
-              className="bg-blue-900 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-950 transition-colors"
+              className="rounded-lg bg-blue-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-950"
             >
               Logout
             </button>
@@ -322,7 +326,7 @@ export default function AdminPage() {
             
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Row 1: Basic Info */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 {/* Nama */}
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-2">
@@ -368,8 +372,24 @@ export default function AdminPage() {
                     onChange={handleInputChange}
                     className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-slate-900 focus:border-blue-500 focus:outline-none transition-colors"
                   >
-                    {categories.map(cat => (
+                    {PRODUCT_CATEGORIES.map(cat => (
                       <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    Kondisi Barang <span className="text-red-600">*</span>
+                  </label>
+                  <select
+                    name="condition"
+                    value={formData.condition}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-slate-900 focus:border-blue-500 focus:outline-none transition-colors"
+                  >
+                    {PRODUCT_CONDITIONS.map((condition) => (
+                      <option key={condition} value={condition}>{condition}</option>
                     ))}
                   </select>
                 </div>
@@ -532,6 +552,7 @@ export default function AdminPage() {
                     <th className="px-4 py-3 text-left font-bold text-gray-700">Foto</th>
                     <th className="px-4 py-3 text-left font-bold text-gray-700">Nama Produk</th>
                     <th className="px-4 py-3 text-left font-bold text-gray-700">Kategori</th>
+                    <th className="px-4 py-3 text-left font-bold text-gray-700">Kondisi</th>
                     <th className="px-4 py-3 text-left font-bold text-gray-700">Harga</th>
                     <th className="px-4 py-3 text-center font-bold text-gray-700">Stok</th>
                     <th className="px-4 py-3 text-center font-bold text-gray-700">Diskon</th>
@@ -557,6 +578,15 @@ export default function AdminPage() {
                       <td className="px-4 py-4">
                         <span className="inline-block bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-semibold">
                           {product.category}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4">
+                        <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${
+                          product.condition === 'Second'
+                            ? 'bg-amber-100 text-amber-700'
+                            : 'bg-emerald-100 text-emerald-700'
+                        }`}>
+                          {product.condition}
                         </span>
                       </td>
                       <td className="px-4 py-4 font-semibold text-gray-800">{product.price}</td>

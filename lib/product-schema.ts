@@ -5,6 +5,7 @@ export interface Product {
   discount?: number;
   description: string;
   category: string;
+  condition: 'Baru' | 'Second';
   images: string[];
   stock: number;
 }
@@ -26,6 +27,14 @@ const parseNumericValue = (value: unknown, fallback = 0) => {
 const normalizeImageValue = (value: unknown) =>
   typeof value === 'string' ? value.trim() : '';
 
+const normalizeCondition = (value: unknown): Product['condition'] => {
+  if (typeof value !== 'string') return 'Baru';
+
+  const normalized = value.trim().toLowerCase();
+  if (normalized === 'second' || normalized === 'bekas') return 'Second';
+  return 'Baru';
+};
+
 export const normalizeStoredProducts = (rawProducts: unknown): Product[] => {
   if (!Array.isArray(rawProducts)) return [];
 
@@ -44,6 +53,7 @@ export const normalizeStoredProducts = (rawProducts: unknown): Product[] => {
       discount: parseNumericValue(product.discount),
       description: product.description ?? '',
       category: product.category ?? 'Laptop',
+      condition: normalizeCondition(product.condition),
       images: normalizedImages,
       stock: parseNumericValue(product.stock),
     };
