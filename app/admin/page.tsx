@@ -1,14 +1,17 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import type { Product } from '@/lib/product-schema';
 import { normalizeStoredProducts } from '@/lib/product-schema';
+import { createClient as createSupabaseBrowserClient } from '@/lib/supabase/client';
 
 const MAX_IMAGES = 5;
 const categories = ['Laptop', 'PC', 'Printer', 'Storage', 'RAM & CPU', 'Aksesoris'];
 
 export default function AdminPage() {
+  const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
   const [productsError, setProductsError] = useState('');
@@ -256,12 +259,24 @@ export default function AdminPage() {
     resetForm();
   };
 
+  const handleLogout = async () => {
+    try {
+      const supabase = createSupabaseBrowserClient();
+      await supabase.auth.signOut();
+      router.push('/login');
+      router.refresh();
+    } catch (error) {
+      console.error(error);
+      alert('Gagal logout. Silakan coba lagi.');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-linear-to-r from-blue-600 to-cyan-500 text-white py-6 px-4 shadow-lg">
         <div className="max-w-7xl mx-auto">
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center gap-3">
             <div>
               <h1 className="text-3xl font-bold">Admin Dashboard</h1>
               <p className="text-blue-100 mt-2">Kelola produk Universal Komputer</p>
@@ -272,6 +287,13 @@ export default function AdminPage() {
             >
               ← Kembali ke Homepage
             </Link>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="bg-blue-900 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-950 transition-colors"
+            >
+              Logout
+            </button>
           </div>
         </div>
       </div>

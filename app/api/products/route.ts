@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
 
+import { isAdminEmail } from '@/lib/auth';
 import { normalizeStoredProducts } from '@/lib/product-schema';
 import { readProducts, writeProducts } from '@/lib/products';
 import { isSupabaseConfigured } from '@/lib/supabase-admin';
+import { createClient as createSupabaseServerClient } from '@/lib/supabase/server';
 
 export const runtime = 'nodejs';
 
@@ -32,6 +34,16 @@ export async function POST(request: Request) {
   }
 
   try {
+    const supabase = await createSupabaseServerClient();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user || !isAdminEmail(user.email)) {
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
     const normalizedProducts = normalizeStoredProducts(body);
     const savedProducts = await writeProducts(normalizedProducts);
