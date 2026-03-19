@@ -11,6 +11,7 @@ const categories = ['Laptop', 'PC', 'Printer', 'Storage', 'RAM & CPU', 'Aksesori
 export default function AdminPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+  const [productsError, setProductsError] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [formData, setFormData] = useState({
@@ -27,7 +28,10 @@ export default function AdminPage() {
     const loadProducts = async () => {
       try {
         const response = await fetch('/api/products', { cache: 'no-store' });
-        if (!response.ok) throw new Error('Gagal memuat produk');
+        if (!response.ok) {
+          const errorData = (await response.json()) as { message?: string };
+          throw new Error(errorData.message || 'Gagal memuat produk');
+        }
         const data = (await response.json()) as Product[];
 
         if (data.length === 0 && typeof window !== 'undefined') {
@@ -40,9 +44,11 @@ export default function AdminPage() {
         }
 
         setProducts(normalizeStoredProducts(data));
+        setProductsError('');
       } catch (error) {
         console.error(error);
         setProducts([]);
+        setProductsError(error instanceof Error ? error.message : 'Gagal memuat produk.');
       } finally {
         setIsLoadingProducts(false);
       }
@@ -74,11 +80,13 @@ export default function AdminPage() {
     });
 
     if (!response.ok) {
-      throw new Error('Gagal menyimpan produk');
+      const errorData = (await response.json()) as { message?: string };
+      throw new Error(errorData.message || 'Gagal menyimpan produk');
     }
 
     const savedProducts = (await response.json()) as Product[];
     setProducts(savedProducts);
+    setProductsError('');
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -484,6 +492,11 @@ export default function AdminPage() {
           {isLoadingProducts ? (
             <div className="p-12 text-center text-gray-500">
               <p className="text-lg">Sedang memuat produk...</p>
+            </div>
+          ) : productsError ? (
+            <div className="p-12 text-center">
+              <p className="text-lg text-red-600 mb-2">Admin belum bisa memuat produk</p>
+              <p className="text-gray-500">{productsError}</p>
             </div>
           ) : products.length === 0 ? (
             <div className="p-12 text-center text-gray-500">

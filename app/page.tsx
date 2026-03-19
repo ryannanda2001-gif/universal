@@ -8,6 +8,7 @@ export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+  const [productsError, setProductsError] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Semua');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -63,7 +64,10 @@ export default function Home() {
     const loadProducts = async () => {
       try {
         const response = await fetch('/api/products', { cache: 'no-store' });
-        if (!response.ok) throw new Error('Gagal memuat produk');
+        if (!response.ok) {
+          const errorData = (await response.json()) as { message?: string };
+          throw new Error(errorData.message || 'Gagal memuat produk');
+        }
         const data = (await response.json()) as Product[];
 
         if (data.length === 0 && typeof window !== 'undefined') {
@@ -86,9 +90,11 @@ export default function Home() {
         }
 
         setProducts(data);
+        setProductsError('');
       } catch (error) {
         console.error(error);
         setProducts([]);
+        setProductsError(error instanceof Error ? error.message : 'Gagal memuat produk.');
       } finally {
         setIsLoadingProducts(false);
       }
@@ -176,6 +182,11 @@ export default function Home() {
           {isLoadingProducts ? (
             <div className="text-center py-16">
               <p className="text-gray-600 text-lg">Sedang memuat produk...</p>
+            </div>
+          ) : productsError ? (
+            <div className="text-center py-16">
+              <p className="text-red-600 text-lg mb-2">Produk belum bisa dimuat</p>
+              <p className="text-gray-500">{productsError}</p>
             </div>
           ) : products.length === 0 ? (
             <div className="text-center py-16">
