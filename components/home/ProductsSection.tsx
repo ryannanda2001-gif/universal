@@ -26,6 +26,14 @@ export function ProductsSection({
   onViewProduct,
 }: ProductsSectionProps) {
   const scrollerRef = useRef<HTMLDivElement | null>(null);
+  const productColumns = filteredProducts.reduce<Product[][]>((columns, product, index) => {
+    const columnIndex = Math.floor(index / 2);
+    if (!columns[columnIndex]) {
+      columns[columnIndex] = [];
+    }
+    columns[columnIndex].push(product);
+    return columns;
+  }, []);
 
   const scrollProducts = (direction: 'left' | 'right') => {
     if (!scrollerRef.current) return;
@@ -58,7 +66,7 @@ export function ProductsSection({
                 className="flex h-11 w-11 items-center justify-center rounded-full border border-slate-300 bg-white text-lg font-bold text-slate-700 transition hover:-translate-y-0.5 hover:border-blue-500 hover:text-blue-600"
                 aria-label="Geser produk ke kiri"
               >
-                ‹
+                &lt;
               </button>
               <button
                 type="button"
@@ -66,7 +74,7 @@ export function ProductsSection({
                 className="flex h-11 w-11 items-center justify-center rounded-full border border-slate-300 bg-white text-lg font-bold text-slate-700 transition hover:-translate-y-0.5 hover:border-blue-500 hover:text-blue-600"
                 aria-label="Geser produk ke kanan"
               >
-                ›
+                &gt;
               </button>
               <Link
                 href="/products"
@@ -121,14 +129,18 @@ export function ProductsSection({
         ) : (
           <div
             ref={scrollerRef}
-            className="grid grid-flow-col grid-rows-2 auto-cols-[minmax(220px,1fr)] gap-5 overflow-x-auto pb-4 scrollbar-hide md:auto-cols-[280px]"
+            className="flex items-start gap-5 overflow-x-auto pb-4 scrollbar-hide"
           >
-            {filteredProducts.map((product, index) => (
+            {productColumns.map((column, index) => (
               <div
-                key={product.id}
-                className={index % 4 === 1 ? 'animation-delay-200' : index % 4 === 2 ? 'animation-delay-400' : ''}
+                key={`column-${column[0]?.id ?? index}`}
+                className={`flex w-[220px] shrink-0 flex-col gap-5 md:w-[280px] ${
+                  index % 4 === 1 ? 'animation-delay-200' : index % 4 === 2 ? 'animation-delay-400' : ''
+                }`}
               >
-                <ProductCard product={product} onViewDetail={onViewProduct} />
+                {column.map((product) => (
+                  <ProductCard key={product.id} product={product} onViewDetail={onViewProduct} />
+                ))}
               </div>
             ))}
           </div>

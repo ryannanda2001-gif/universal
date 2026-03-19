@@ -367,26 +367,28 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-linear-to-r from-blue-600 to-cyan-500 text-white py-6 px-4 shadow-lg">
+      <div className="bg-linear-to-r from-slate-950 via-blue-900 to-cyan-700 text-white py-6 px-4 shadow-lg">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <h1 className="text-3xl font-bold font-brand">Admin Dashboard</h1>
               <p className="text-blue-100 mt-2">Kelola produk Universal Komputer</p>
             </div>
-            <Link
-              href="/"
-              className="rounded-lg border border-white/30 bg-white/10 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/20"
-            >
-              Home
-            </Link>
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="rounded-lg bg-blue-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-950"
-            >
-              Logout
-            </button>
+            <div className="flex items-center gap-2 self-start md:self-auto">
+              <Link
+                href="/"
+                className="rounded-lg border border-white/30 bg-white/10 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/20"
+              >
+                Home
+              </Link>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-slate-950"
+              >
+                Logout
+              </button>
+            </div>
           </div>
         </div>
       </div>
