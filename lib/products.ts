@@ -1,4 +1,5 @@
 import { normalizeStoredProducts, type Product } from '@/lib/product-schema';
+import { uploadProductImages } from '@/lib/product-images';
 import { getSupabaseAdmin, isSupabaseConfigured } from '@/lib/supabase-admin';
 
 export const readProducts = async () => {
@@ -25,9 +26,19 @@ export const writeProducts = async (products: Product[]) => {
   }
 
   const normalizedProducts = normalizeStoredProducts(products);
+  const productsWithUploadedImages: Product[] = [];
+
+  for (const product of normalizedProducts) {
+    const uploadedImages = await uploadProductImages(product.id, product.images);
+    productsWithUploadedImages.push({
+      ...product,
+      images: uploadedImages,
+    });
+  }
+
   const supabase = getSupabaseAdmin();
 
-  const incomingIds = normalizedProducts.map((product) => product.id);
+  const incomingIds = productsWithUploadedImages.map((product) => product.id);
 
   const { data: existingProducts, error: existingError } = await supabase
     .from('products')
@@ -52,15 +63,15 @@ export const writeProducts = async (products: Product[]) => {
     }
   }
 
-  if (normalizedProducts.length > 0) {
+  if (productsWithUploadedImages.length > 0) {
     const { error: upsertError } = await supabase
       .from('products')
-      .upsert(normalizedProducts, { onConflict: 'id' });
+      .upsert(productsWithUploadedImages, { onConflict: 'id' });
 
     if (upsertError) {
       throw new Error(`Failed to save products to Supabase: ${upsertError.message}`);
     }
   }
 
-  return normalizedProducts;
+  return productsWithUploadedImages;
 };

@@ -54,7 +54,16 @@ SUPABASE_SERVICE_ROLE_KEY=...
 
 Di Vercel, tambahkan env yang sama pada project settings.
 
-## 4. Deploy
+## 4. Buat storage bucket
+
+Di Supabase Storage:
+
+1. Buat bucket bernama `products`
+2. Set bucket menjadi `public`
+
+Bucket ini dipakai untuk menyimpan foto produk.
+
+## 5. Deploy
 
 Setelah env terpasang:
 
@@ -66,5 +75,5 @@ Setelah env terpasang:
 ## Catatan
 
 - `SERVICE_ROLE_KEY` hanya dipakai di server lewat API route, jangan dipakai langsung di client component.
-- Gambar produk saat ini masih disimpan sebagai base64 di database agar migrasinya tetap sederhana.
-- Untuk skala lebih besar, langkah berikutnya yang bagus adalah pindahkan gambar ke Supabase Storage.
+- Gambar baru akan di-upload ke Supabase Storage bucket `products`.
+- Produk lama yang masih menyimpan base64 akan ikut berubah menjadi URL storage saat produk tersebut disimpan ulang.
