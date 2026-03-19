@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Universal Computer",
-  description: "Universal Computer",
+  description: "Toko Computer",
 };
 
 export default function RootLayout({
