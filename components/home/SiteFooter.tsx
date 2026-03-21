@@ -12,6 +12,8 @@ type SiteFooterProps = {
   instagramLabel: string;
   facebookUrl: string;
   facebookLabel: string;
+  mapsEmbedUrl: string;
+  mapsLabel: string;
 };
 
 const buildWhatsAppLink = (value: string) => {
@@ -31,6 +33,8 @@ export function SiteFooter({
   instagramLabel,
   facebookUrl,
   facebookLabel,
+  mapsEmbedUrl,
+  mapsLabel,
 }: SiteFooterProps) {
   const year = new Date().getFullYear();
   const phoneLink = phone ? buildWhatsAppLink(phone) : `https://wa.me/${WHATSAPP_NUMBER}`;
@@ -103,15 +107,15 @@ export function SiteFooter({
   ];
 
   return (
-    <footer className="relative overflow-hidden bg-linear-to-b from-sky-50 via-white to-blue-100/70 px-4 py-12 text-slate-700 md:py-16">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-linear-to-r from-cyan-200/35 via-blue-200/25 to-sky-100/10 blur-3xl" />
+    <footer className="relative overflow-hidden bg-linear-to-b from-slate-950 via-blue-950 to-slate-900 px-4 py-12 text-slate-200 md:py-14">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-linear-to-r from-cyan-500/20 via-blue-500/15 to-white/5 blur-3xl" />
       <div className="mx-auto max-w-7xl">
-        <div className="relative rounded-[32px] border border-white/70 bg-white/90 p-6 shadow-[0_30px_90px_-44px_rgba(37,99,235,0.28)] backdrop-blur md:p-8">
-          <div className="mb-8 grid gap-6 rounded-[28px] bg-linear-to-r from-blue-600 via-cyan-500 to-sky-400 px-6 py-6 text-white lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
+        <div className="relative rounded-[32px] border border-white/10 bg-white/5 p-5 shadow-[0_30px_90px_-44px_rgba(37,99,235,0.28)] backdrop-blur md:p-6">
+          <div className="mb-6 grid gap-5 rounded-[28px] bg-linear-to-r from-blue-700 via-cyan-600 to-blue-500 px-5 py-5 text-white lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
             <div>
               <p className="mb-2 text-xs font-semibold uppercase tracking-[0.28em] text-cyan-100">{badge}</p>
               <h3 className="font-brand text-2xl font-bold md:text-3xl">{title}</h3>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-blue-50">{description}</p>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-blue-50/90">{description}</p>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               {socialLinks.map((item) => (
@@ -134,25 +138,25 @@ export function SiteFooter({
             </div>
           </div>
 
-          <div className="grid gap-8 lg:grid-cols-[1fr_1fr]">
+          <div className="grid gap-5 lg:grid-cols-[0.95fr_1.05fr]">
             <div className="space-y-5">
               <div>
-                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.28em] text-cyan-600">Kontak Utama</p>
-                <h4 className="font-brand text-2xl font-bold text-slate-900 md:text-[2rem]">Hubungi toko dengan cepat dan jelas</h4>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.28em] text-cyan-300">Kontak Utama</p>
+                <h4 className="font-brand text-2xl font-bold text-white md:text-[2rem]">Hubungi toko dengan cepat dan jelas</h4>
               </div>
 
               <div className="space-y-3">
                 {contactItems.map((item) => {
                   const content = (
-                    <div className="flex items-start gap-3 rounded-2xl border border-blue-100 bg-linear-to-r from-white to-blue-50 px-4 py-4">
-                      <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-cyan-100 to-blue-100 text-cyan-700">
+                    <div className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/8 px-4 py-3.5">
+                      <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-cyan-400/20 to-blue-400/20 text-cyan-200">
                         {item.icon}
                       </span>
                       <span className="min-w-0">
-                        <span className="block text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                        <span className="block text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
                           {item.label}
                         </span>
-                        <span className="mt-1 block text-sm font-medium leading-6 text-slate-900">
+                        <span className="mt-1 block text-sm font-medium leading-6 text-white">
                           {item.value}
                         </span>
                       </span>
@@ -178,32 +182,43 @@ export function SiteFooter({
               </div>
             </div>
 
-            <div className="space-y-5 rounded-[28px] border border-blue-100 bg-linear-to-br from-white via-blue-50/70 to-cyan-50 p-5">
+            <div className="space-y-4 rounded-[28px] border border-white/10 bg-linear-to-br from-white/8 via-blue-500/10 to-cyan-400/10 p-4">
               <div>
-                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-cyan-600">Info Toko</p>
-                <p className="text-sm leading-7 text-slate-500">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-cyan-300">Info Toko</p>
+                <p className="text-sm leading-7 text-slate-300">
                   Kami siap membantu kebutuhan rakitan, service, upgrade, dan konsultasi perangkat sesuai kebutuhan Anda.
                 </p>
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">
-                <div className="rounded-2xl border border-white/80 bg-white px-4 py-4 shadow-sm">
-                  <span className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-600">Respon Cepat</span>
-                  <p className="mt-2 text-sm leading-7 text-slate-600">Tanya stok dan harga lebih cepat lewat WhatsApp atau media sosial toko.</p>
+                <div className="rounded-2xl border border-white/10 bg-white/8 px-4 py-4">
+                  <span className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-300">Respon Cepat</span>
+                  <p className="mt-2 text-sm leading-7 text-slate-300">Tanya stok dan harga lebih cepat lewat WhatsApp atau media sosial toko.</p>
                 </div>
-                <div className="rounded-2xl border border-white/80 bg-white px-4 py-4 shadow-sm">
-                  <span className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-600">Kunjungi Toko</span>
-                  <p className="mt-2 text-sm leading-7 text-slate-600">Lokasi dan kebutuhan service bisa dikonfirmasi dulu sebelum datang agar lebih efisien.</p>
+                <div className="rounded-2xl border border-white/10 bg-white/8 px-4 py-4">
+                  <span className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-300">Kunjungi Toko</span>
+                  <p className="mt-2 text-sm leading-7 text-slate-300">Lokasi dan kebutuhan service bisa dikonfirmasi dulu sebelum datang agar lebih efisien.</p>
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-cyan-100 bg-linear-to-r from-cyan-50 to-blue-50 px-4 py-4 text-sm leading-7 text-slate-700">
-                Jam operasional dan titik lokasi bisa Anda konfirmasi lebih cepat melalui WhatsApp sebelum datang ke toko.
-              </div>
+              {mapsEmbedUrl ? (
+                <div className="overflow-hidden rounded-2xl border border-white/10 bg-slate-950/30">
+                  <div className="border-b border-white/10 px-4 py-3">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-300">{mapsLabel}</p>
+                  </div>
+                  <iframe
+                    src={mapsEmbedUrl}
+                    title={mapsLabel}
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    className="h-48 w-full border-0"
+                  />
+                </div>
+              ) : null}
             </div>
           </div>
 
-          <div className="mt-6 border-t border-slate-200 pt-5 text-sm text-slate-500">
+          <div className="mt-6 border-t border-white/10 pt-5 text-sm text-slate-400">
             <p>&copy; {year} Universal Komputer. All rights reserved.</p>
           </div>
         </div>

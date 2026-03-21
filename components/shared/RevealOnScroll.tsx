@@ -38,7 +38,7 @@ export function RevealOnScroll({ children, className = '', delayClassName = '' }
     <div
       ref={ref}
       className={`${className} transition-all duration-700 ease-out ${
-        isVisible ? `translate-y-0 opacity-100 ${delayClassName}` : 'translate-y-8 opacity-0'
+        isVisible ? `translate-y-0 scale-100 blur-0 opacity-100 ${delayClassName}` : 'translate-y-12 scale-[0.96] blur-[6px] opacity-0'
       }`}
     >
       {children}

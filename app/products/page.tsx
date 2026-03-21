@@ -121,6 +121,8 @@ export default function ProductsPage() {
         instagramLabel={siteContent.instagramLabel}
         facebookUrl={siteContent.facebookUrl}
         facebookLabel={siteContent.facebookLabel}
+        mapsEmbedUrl={siteContent.mapsEmbedUrl}
+        mapsLabel={siteContent.mapsLabel}
       />
       <WhatsAppFloatingButton />
     </div>

@@ -41,11 +41,11 @@ export function ProductDetailModal({
         <div className="flex w-full flex-col bg-white md:w-[56%]">
           <div className="relative flex-1 min-h-[340px] overflow-hidden bg-white p-4 md:min-h-[620px] md:p-6">
             {product.images[currentImageIndex] ? (
-              <div className="mx-auto aspect-square h-full max-h-[640px] w-full max-w-[640px] overflow-hidden rounded-[28px] bg-slate-100">
+              <div className="mx-auto aspect-square h-full max-h-[680px] w-full max-w-[680px] rounded-[28px] bg-slate-100 p-2">
                 <img
                   src={product.images[currentImageIndex]}
                   alt={product.name}
-                  className="h-full w-full object-cover object-center"
+                  className="h-full w-full object-contain object-center"
                   onError={(event) => {
                     event.currentTarget.src = '/store-1.jpg';
                   }}
@@ -90,7 +90,7 @@ export function ProductDetailModal({
                   onClick={() => onSelectImage(idx)}
                   className={`shrink-0 w-14 h-14 rounded-lg overflow-hidden border-2 transition-all ${idx === currentImageIndex ? 'border-blue-600 ring-2 ring-blue-300' : 'border-gray-300'}`}
                 >
-                  {img ? <img src={img} alt={`Foto ${idx + 1}`} className="h-full w-full bg-white object-cover object-center" /> : <div className="w-full h-full bg-gray-300" />}
+                  {img ? <img src={img} alt={`Foto ${idx + 1}`} className="h-full w-full bg-white object-contain object-center p-1" /> : <div className="w-full h-full bg-gray-300" />}
                 </button>
               ))}
             </div>

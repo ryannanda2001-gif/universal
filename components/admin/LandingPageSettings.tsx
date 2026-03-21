@@ -284,6 +284,28 @@ export function LandingPageSettings({
                     />
                   </label>
                 </div>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <label className="block text-sm font-semibold text-slate-700">
+                    Google Maps Embed URL
+                    <input
+                      type="text"
+                      name="mapsEmbedUrl"
+                      value={siteContent.mapsEmbedUrl}
+                      onChange={onChange}
+                      className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-slate-900"
+                    />
+                  </label>
+                  <label className="block text-sm font-semibold text-slate-700">
+                    Label Maps
+                    <input
+                      type="text"
+                      name="mapsLabel"
+                      value={siteContent.mapsLabel}
+                      onChange={onChange}
+                      className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-slate-900"
+                    />
+                  </label>
+                </div>
               </div>
             </div>
           </div>

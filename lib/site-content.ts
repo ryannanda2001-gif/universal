@@ -26,6 +26,8 @@ export type SiteContent = {
   instagramLabel: string;
   facebookUrl: string;
   facebookLabel: string;
+  mapsEmbedUrl: string;
+  mapsLabel: string;
   servicesBadge: string;
   servicesTitle: string;
   serviceOneTitle: string;
@@ -60,6 +62,8 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
   instagramLabel: '@universalcomputer',
   facebookUrl: '#',
   facebookLabel: 'Universal Komputer',
+  mapsEmbedUrl: 'https://www.google.com/maps?q=Jl.%20Ciledug%20Raya%20No.3%20Tangerang&z=15&output=embed',
+  mapsLabel: 'Lokasi Universal Komputer',
   servicesBadge: 'Layanan',
   servicesTitle: 'Layanan Perbaikan Kami',
   serviceOneTitle: 'Perbaikan Laptop',
@@ -97,6 +101,8 @@ const normalizeSiteContent = (value: unknown): SiteContent => {
     instagramLabel: incoming.instagramLabel?.trim() || DEFAULT_SITE_CONTENT.instagramLabel,
     facebookUrl: incoming.facebookUrl?.trim() || DEFAULT_SITE_CONTENT.facebookUrl,
     facebookLabel: incoming.facebookLabel?.trim() || DEFAULT_SITE_CONTENT.facebookLabel,
+    mapsEmbedUrl: incoming.mapsEmbedUrl?.trim() || DEFAULT_SITE_CONTENT.mapsEmbedUrl,
+    mapsLabel: incoming.mapsLabel?.trim() || DEFAULT_SITE_CONTENT.mapsLabel,
     servicesBadge: incoming.servicesBadge?.trim() || DEFAULT_SITE_CONTENT.servicesBadge,
     servicesTitle: incoming.servicesTitle?.trim() || DEFAULT_SITE_CONTENT.servicesTitle,
     serviceOneTitle: incoming.serviceOneTitle?.trim() || DEFAULT_SITE_CONTENT.serviceOneTitle,

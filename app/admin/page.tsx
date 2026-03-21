@@ -21,6 +21,23 @@ const readFileAsDataUrl = (file: File) =>
     reader.readAsDataURL(file);
   });
 
+const adminMenus = [
+  {
+    id: 'landing' as const,
+    label: 'Landing Page',
+    description: 'Atur section utama website.',
+    flyoutTitle: 'Kustomisasi Halaman Utama',
+    flyoutDescription: 'Ubah banner, footer, layanan, teks, foto, dan kontak dari satu tempat.',
+  },
+  {
+    id: 'products' as const,
+    label: 'Produk',
+    description: 'Kelola katalog dan backup data.',
+    flyoutTitle: 'Manajemen Produk',
+    flyoutDescription: 'Tambah, edit, hapus, import, dan export data produk dengan aman.',
+  },
+];
+
 export default function AdminPage() {
   const router = useRouter();
   const importInputRef = useRef<HTMLInputElement | null>(null);
@@ -423,63 +440,68 @@ export default function AdminPage() {
 
       <div className="mx-auto max-w-7xl px-4 py-12">
         <div className="grid gap-8 lg:grid-cols-[300px_minmax(0,1fr)]">
-          <aside className="lg:sticky lg:top-8 lg:self-start">
-            <div className="overflow-hidden rounded-[30px] border border-slate-200 bg-white shadow-[0_24px_70px_-44px_rgba(15,23,42,0.32)]">
+          <aside className="lg:sticky lg:top-6 lg:self-start">
+            <div className="overflow-visible rounded-[30px] border border-slate-200 bg-white shadow-[0_24px_70px_-44px_rgba(15,23,42,0.32)] lg:min-h-[calc(100vh-8rem)]">
               <div className="bg-linear-to-br from-slate-950 via-blue-900 to-cyan-700 p-6 text-white">
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-100">Sidebar Menu</p>
                 <h2 className="mt-2 font-brand text-2xl font-bold">Dashboard Admin</h2>
                 <p className="mt-2 text-sm leading-6 text-blue-100">Navigasi utama untuk mengatur landing page dan produk.</p>
               </div>
 
-              <nav className="space-y-2 p-4">
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveMenu('landing');
-                  setShowForm(false);
-                }}
-                className={`group flex w-full items-center gap-3 rounded-2xl px-4 py-3.5 text-left transition-all duration-200 ${
-                  activeMenu === 'landing'
-                    ? 'bg-linear-to-r from-cyan-50 to-blue-50 text-cyan-900 ring-1 ring-cyan-200 shadow-sm'
-                    : 'text-slate-700 hover:bg-slate-50'
-                }`}
-              >
-                <span className={`h-10 w-1.5 rounded-full transition-all ${activeMenu === 'landing' ? 'bg-cyan-500' : 'bg-slate-200 group-hover:bg-slate-300'}`} />
-                <span className={`flex h-11 w-11 items-center justify-center rounded-2xl ring-1 transition-all ${
-                  activeMenu === 'landing' ? 'bg-white text-cyan-700 ring-cyan-200' : 'bg-white text-slate-500 ring-slate-200'
-                }`}>
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4.5 6.75h15m-15 5.25h15M4.5 17.25h15" />
-                  </svg>
-                </span>
-                <span className="min-w-0">
-                  <span className="block text-sm font-bold">Landing Page</span>
-                  <span className="mt-1 block text-xs leading-5 text-slate-500">Edit banner, section, layanan, footer, dan kontak website.</span>
-                </span>
-              </button>
+              <nav className="flex h-full flex-col gap-2 p-4">
+                {adminMenus.map((menu) => (
+                  <div key={menu.id} className="group relative">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveMenu(menu.id);
+                        if (menu.id === 'landing') {
+                          setShowForm(false);
+                        }
+                      }}
+                      className={`flex w-full items-center gap-3 rounded-2xl px-4 py-3.5 text-left transition-all duration-200 ${
+                        activeMenu === menu.id
+                          ? 'bg-linear-to-r from-blue-50 to-cyan-50 text-blue-900 ring-1 ring-blue-200 shadow-sm'
+                          : 'text-slate-700 hover:bg-slate-50'
+                      }`}
+                    >
+                      <span className={`h-10 w-1.5 rounded-full transition-all ${
+                        activeMenu === menu.id ? 'bg-blue-500' : 'bg-slate-200 group-hover:bg-slate-300'
+                      }`} />
+                      <span className={`flex h-11 w-11 items-center justify-center rounded-2xl ring-1 transition-all ${
+                        activeMenu === menu.id ? 'bg-white text-blue-700 ring-blue-200' : 'bg-white text-slate-500 ring-slate-200'
+                      }`}>
+                        {menu.id === 'landing' ? (
+                          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4.5 6.75h15m-15 5.25h15M4.5 17.25h15" />
+                          </svg>
+                        ) : (
+                          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M20.25 7.5H3.75m16.5 0-1.5 9.75a2.25 2.25 0 0 1-2.22 1.95H7.47a2.25 2.25 0 0 1-2.22-1.95L3.75 7.5m5.25 0V5.625A2.625 2.625 0 0 1 11.625 3h.75A2.625 2.625 0 0 1 15 5.625V7.5" />
+                          </svg>
+                        )}
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block text-sm font-bold">{menu.label}</span>
+                        <span className="mt-1 block text-xs leading-5 text-slate-500">{menu.description}</span>
+                      </span>
+                    </button>
 
-              <button
-                type="button"
-                onClick={() => setActiveMenu('products')}
-                className={`group flex w-full items-center gap-3 rounded-2xl px-4 py-3.5 text-left transition-all duration-200 ${
-                  activeMenu === 'products'
-                    ? 'bg-linear-to-r from-blue-50 to-cyan-50 text-blue-900 ring-1 ring-blue-200 shadow-sm'
-                    : 'text-slate-700 hover:bg-slate-50'
-                }`}
-              >
-                <span className={`h-10 w-1.5 rounded-full transition-all ${activeMenu === 'products' ? 'bg-blue-500' : 'bg-slate-200 group-hover:bg-slate-300'}`} />
-                <span className={`flex h-11 w-11 items-center justify-center rounded-2xl ring-1 transition-all ${
-                  activeMenu === 'products' ? 'bg-white text-blue-700 ring-blue-200' : 'bg-white text-slate-500 ring-slate-200'
-                }`}>
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M20.25 7.5H3.75m16.5 0-1.5 9.75a2.25 2.25 0 0 1-2.22 1.95H7.47a2.25 2.25 0 0 1-2.22-1.95L3.75 7.5m5.25 0V5.625A2.625 2.625 0 0 1 11.625 3h.75A2.625 2.625 0 0 1 15 5.625V7.5" />
-                  </svg>
-                </span>
-                <span className="min-w-0">
-                  <span className="block text-sm font-bold">Produk</span>
-                  <span className="mt-1 block text-xs leading-5 text-slate-500">Tambah, edit, hapus, backup, dan import data produk toko.</span>
-                </span>
-              </button>
+                    <div className="pointer-events-none absolute left-full top-1/2 z-20 hidden w-64 -translate-y-1/2 pl-4 opacity-0 transition-all duration-200 group-hover:pointer-events-auto group-hover:opacity-100 xl:block">
+                      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_18px_45px_-28px_rgba(15,23,42,0.28)]">
+                        <p className="text-sm font-bold text-slate-900">{menu.flyoutTitle}</p>
+                        <p className="mt-2 text-xs leading-6 text-slate-500">{menu.flyoutDescription}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                <div className="mt-auto rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Status</p>
+                  <p className="mt-2 text-sm font-medium text-slate-900">
+                    {activeMenu === 'landing' ? 'Sedang mengedit landing page' : 'Sedang mengelola data produk'}
+                  </p>
+                </div>
               </nav>
             </div>
           </aside>
