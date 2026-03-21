@@ -6,7 +6,10 @@ type LandingPageSettingsProps = {
   isSaving: boolean;
   error: string;
   onChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-  onImageUpload: (event: React.ChangeEvent<HTMLInputElement>, field: 'heroImage' | 'aboutImage') => void;
+  onImageUpload: (
+    event: React.ChangeEvent<HTMLInputElement>,
+    field: 'heroImage' | 'aboutImage' | 'serviceOneImage' | 'serviceTwoImage' | 'serviceThreeImage'
+  ) => void;
   onSave: () => void;
 };
 
@@ -282,6 +285,114 @@ export function LandingPageSettings({
                   </label>
                 </div>
               </div>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+            <h3 className="mb-4 text-lg font-semibold text-slate-900">Section Layanan</h3>
+            <div className="space-y-6">
+              <div className="grid gap-4 md:grid-cols-2">
+                <label className="block text-sm font-semibold text-slate-700">
+                  Badge Layanan
+                  <input
+                    type="text"
+                    name="servicesBadge"
+                    value={siteContent.servicesBadge}
+                    onChange={onChange}
+                    className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-slate-900"
+                  />
+                </label>
+                <label className="block text-sm font-semibold text-slate-700">
+                  Judul Layanan
+                  <input
+                    type="text"
+                    name="servicesTitle"
+                    value={siteContent.servicesTitle}
+                    onChange={onChange}
+                    className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-slate-900"
+                  />
+                </label>
+              </div>
+
+              {[
+                {
+                  key: 'serviceOne',
+                  title: siteContent.serviceOneTitle,
+                  description: siteContent.serviceOneDescription,
+                  image: siteContent.serviceOneImage,
+                  imageField: 'serviceOneImage' as const,
+                  titleField: 'serviceOneTitle',
+                  descriptionField: 'serviceOneDescription',
+                  label: 'Layanan 1',
+                },
+                {
+                  key: 'serviceTwo',
+                  title: siteContent.serviceTwoTitle,
+                  description: siteContent.serviceTwoDescription,
+                  image: siteContent.serviceTwoImage,
+                  imageField: 'serviceTwoImage' as const,
+                  titleField: 'serviceTwoTitle',
+                  descriptionField: 'serviceTwoDescription',
+                  label: 'Layanan 2',
+                },
+                {
+                  key: 'serviceThree',
+                  title: siteContent.serviceThreeTitle,
+                  description: siteContent.serviceThreeDescription,
+                  image: siteContent.serviceThreeImage,
+                  imageField: 'serviceThreeImage' as const,
+                  titleField: 'serviceThreeTitle',
+                  descriptionField: 'serviceThreeDescription',
+                  label: 'Layanan 3',
+                },
+              ].map((service) => (
+                <div key={service.key} className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-4 lg:grid-cols-[220px_minmax(0,1fr)]">
+                  <div className="space-y-3">
+                    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
+                      <img
+                        src={service.image || '/store-photo.jpg'}
+                        alt={service.label}
+                        className="aspect-[4/3] w-full object-cover"
+                        onError={(event) => {
+                          event.currentTarget.src = '/store-photo.jpg';
+                        }}
+                      />
+                    </div>
+                    <label className="block text-sm font-semibold text-slate-700">
+                      Foto {service.label}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="mt-2 block w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700"
+                        onChange={(event) => onImageUpload(event, service.imageField)}
+                      />
+                    </label>
+                  </div>
+
+                  <div className="space-y-4">
+                    <label className="block text-sm font-semibold text-slate-700">
+                      Judul {service.label}
+                      <input
+                        type="text"
+                        name={service.titleField}
+                        value={service.title}
+                        onChange={onChange}
+                        className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-slate-900"
+                      />
+                    </label>
+                    <label className="block text-sm font-semibold text-slate-700">
+                      Deskripsi {service.label}
+                      <textarea
+                        name={service.descriptionField}
+                        value={service.description}
+                        onChange={onChange}
+                        rows={4}
+                        className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-slate-900"
+                      />
+                    </label>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 

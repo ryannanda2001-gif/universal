@@ -28,6 +28,23 @@ export default function Home() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const filteredProducts = filterProductsByCategory(orderedProducts, selectedCategory);
+  const services = [
+    {
+      title: siteContent.serviceOneTitle,
+      description: siteContent.serviceOneDescription,
+      image: siteContent.serviceOneImage,
+    },
+    {
+      title: siteContent.serviceTwoTitle,
+      description: siteContent.serviceTwoDescription,
+      image: siteContent.serviceTwoImage,
+    },
+    {
+      title: siteContent.serviceThreeTitle,
+      description: siteContent.serviceThreeDescription,
+      image: siteContent.serviceThreeImage,
+    },
+  ];
 
   const handleViewProduct = (product: Product) => {
     rememberPreferredCategory(product.category);
@@ -88,7 +105,11 @@ export default function Home() {
         imageSrc={siteContent.aboutImage}
       />
       <StatsSection />
-      <ServicesSection />
+      <ServicesSection
+        badge={siteContent.servicesBadge}
+        title={siteContent.servicesTitle}
+        services={services}
+      />
       <SiteFooter
         badge={siteContent.footerBadge}
         title={siteContent.footerTitle}

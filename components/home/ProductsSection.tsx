@@ -130,7 +130,7 @@ export function ProductsSection({
             {filteredProducts.map((product, index) => (
               <div
                 key={product.id}
-                className={`w-[220px] shrink-0 snap-start sm:w-[240px] md:w-[280px] ${
+                className={`w-[188px] shrink-0 snap-start sm:w-[208px] md:w-[228px] ${
                   index % 4 === 1 ? 'animation-delay-200' : index % 4 === 2 ? 'animation-delay-400' : ''
                 }`}
               >

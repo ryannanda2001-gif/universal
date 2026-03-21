@@ -38,10 +38,10 @@ export function ProductDetailModal({
           </svg>
         </button>
 
-        <div className="flex w-full flex-col bg-gray-100 md:w-[56%]">
-          <div className="relative flex-1 min-h-[340px] overflow-hidden bg-[linear-gradient(180deg,#f8fafc_0%,#e2e8f0_100%)] p-3 md:min-h-[620px] md:p-5">
+        <div className="flex w-full flex-col bg-white md:w-[56%]">
+          <div className="relative flex-1 min-h-[340px] overflow-hidden bg-white md:min-h-[620px]">
             {product.images[currentImageIndex] ? (
-              <div className="flex h-full w-full items-center justify-center rounded-2xl bg-white/80 p-2 shadow-inner">
+              <div className="flex h-full w-full items-center justify-center bg-white">
                 <img
                   src={product.images[currentImageIndex]}
                   alt={product.name}
@@ -55,7 +55,7 @@ export function ProductDetailModal({
               <div className="w-full h-full bg-gray-300 flex items-center justify-center"><span className="text-gray-500">Tidak ada gambar</span></div>
             )}
 
-            <div className="absolute top-4 left-4">
+            <div className="absolute left-4 top-4">
               <span className={`${stockStatus.color} text-white px-3 py-1.5 rounded-full text-sm font-bold`}>{stockStatus.text}</span>
             </div>
 
@@ -82,7 +82,7 @@ export function ProductDetailModal({
           </div>
 
           {product.images.length > 1 ? (
-            <div className="bg-gray-50 p-3 flex gap-2 overflow-x-auto border-t border-gray-200">
+            <div className="flex gap-2 overflow-x-auto border-t border-gray-200 bg-gray-50 p-3">
               {product.images.map((img, idx) => (
                 <button
                   key={img}
@@ -90,7 +90,7 @@ export function ProductDetailModal({
                   onClick={() => onSelectImage(idx)}
                   className={`shrink-0 w-14 h-14 rounded-lg overflow-hidden border-2 transition-all ${idx === currentImageIndex ? 'border-blue-600 ring-2 ring-blue-300' : 'border-gray-300'}`}
                 >
-                  {img ? <img src={img} alt={`Foto ${idx + 1}`} className="h-full w-full object-contain bg-white p-1" /> : <div className="w-full h-full bg-gray-300" />}
+                  {img ? <img src={img} alt={`Foto ${idx + 1}`} className="h-full w-full bg-white object-contain object-center" /> : <div className="w-full h-full bg-gray-300" />}
                 </button>
               ))}
             </div>

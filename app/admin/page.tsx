@@ -272,7 +272,7 @@ export default function AdminPage() {
 
   const handleLandingImageUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
-    field: 'heroImage' | 'aboutImage'
+    field: 'heroImage' | 'aboutImage' | 'serviceOneImage' | 'serviceTwoImage' | 'serviceThreeImage'
   ) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -430,37 +430,47 @@ export default function AdminPage() {
               <p className="mt-2 text-sm leading-6 text-blue-100">Pilih menu di bawah untuk mengubah landing page atau mengatur katalog produk.</p>
             </div>
 
-            <nav className="space-y-2">
+            <nav className="space-y-1.5">
               <button
                 type="button"
                 onClick={() => {
                   setActiveMenu('landing');
                   setShowForm(false);
                 }}
-                className={`flex w-full items-start gap-3 rounded-2xl px-4 py-3 text-left transition ${
+                className={`group flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left transition-all duration-200 ${
                   activeMenu === 'landing'
-                    ? 'bg-cyan-50 text-cyan-800 ring-1 ring-cyan-200'
+                    ? 'bg-cyan-50 text-cyan-800 ring-1 ring-cyan-200 shadow-sm'
                     : 'text-slate-700 hover:bg-slate-50'
                 }`}
               >
-                <span className={`mt-1 h-2.5 w-2.5 rounded-full ${activeMenu === 'landing' ? 'bg-cyan-500' : 'bg-slate-300'}`} />
-                <span>
+                <span className={`h-9 w-1.5 rounded-full transition-all ${activeMenu === 'landing' ? 'bg-cyan-500' : 'bg-slate-200 group-hover:bg-slate-300'}`} />
+                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-slate-500 ring-1 ring-slate-200">
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3.75 5.25h16.5M3.75 12h16.5M3.75 18.75h16.5" />
+                  </svg>
+                </span>
+                <span className="min-w-0">
                   <span className="block text-sm font-bold">Kustomisasi Landing Page</span>
-                  <span className="mt-1 block text-xs leading-5 text-slate-500">Edit banner, judul, foto, footer, dan kontak website.</span>
+                  <span className="mt-1 block text-xs leading-5 text-slate-500">Edit banner, judul, foto, footer, layanan, dan kontak website.</span>
                 </span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveMenu('products')}
-                className={`flex w-full items-start gap-3 rounded-2xl px-4 py-3 text-left transition ${
+                className={`group flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left transition-all duration-200 ${
                   activeMenu === 'products'
-                    ? 'bg-blue-50 text-blue-800 ring-1 ring-blue-200'
+                    ? 'bg-blue-50 text-blue-800 ring-1 ring-blue-200 shadow-sm'
                     : 'text-slate-700 hover:bg-slate-50'
                 }`}
               >
-                <span className={`mt-1 h-2.5 w-2.5 rounded-full ${activeMenu === 'products' ? 'bg-blue-500' : 'bg-slate-300'}`} />
-                <span>
+                <span className={`h-9 w-1.5 rounded-full transition-all ${activeMenu === 'products' ? 'bg-blue-500' : 'bg-slate-200 group-hover:bg-slate-300'}`} />
+                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-slate-500 ring-1 ring-slate-200">
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M20.25 7.5H3.75m16.5 0-1.5 9.75a2.25 2.25 0 0 1-2.22 1.95H7.47a2.25 2.25 0 0 1-2.22-1.95L3.75 7.5m5.25 0V5.625A2.625 2.625 0 0 1 11.625 3h.75A2.625 2.625 0 0 1 15 5.625V7.5" />
+                  </svg>
+                </span>
+                <span className="min-w-0">
                   <span className="block text-sm font-bold">Kelola Produk</span>
                   <span className="mt-1 block text-xs leading-5 text-slate-500">Tambah, edit, hapus, backup, dan import data produk toko.</span>
                 </span>

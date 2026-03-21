@@ -26,6 +26,17 @@ export type SiteContent = {
   instagramLabel: string;
   facebookUrl: string;
   facebookLabel: string;
+  servicesBadge: string;
+  servicesTitle: string;
+  serviceOneTitle: string;
+  serviceOneDescription: string;
+  serviceOneImage: string;
+  serviceTwoTitle: string;
+  serviceTwoDescription: string;
+  serviceTwoImage: string;
+  serviceThreeTitle: string;
+  serviceThreeDescription: string;
+  serviceThreeImage: string;
 };
 
 export const DEFAULT_SITE_CONTENT: SiteContent = {
@@ -49,6 +60,17 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
   instagramLabel: '@universalcomputer',
   facebookUrl: '#',
   facebookLabel: 'Universal Komputer',
+  servicesBadge: 'Layanan',
+  servicesTitle: 'Layanan Perbaikan Kami',
+  serviceOneTitle: 'Perbaikan Laptop',
+  serviceOneDescription: 'Perbaikan hardware dan software laptop berbagai merek.',
+  serviceOneImage: '/store-photo.jpg',
+  serviceTwoTitle: 'Perbaikan Komputer',
+  serviceTwoDescription: 'Service komputer desktop untuk rumah dan kantor.',
+  serviceTwoImage: '/store-photo.jpg',
+  serviceThreeTitle: 'Perbaikan Printer',
+  serviceThreeDescription: 'Perbaikan dan maintenance printer semua jenis.',
+  serviceThreeImage: '/store-photo.jpg',
 };
 
 const normalizeSiteContent = (value: unknown): SiteContent => {
@@ -75,6 +97,17 @@ const normalizeSiteContent = (value: unknown): SiteContent => {
     instagramLabel: incoming.instagramLabel?.trim() || DEFAULT_SITE_CONTENT.instagramLabel,
     facebookUrl: incoming.facebookUrl?.trim() || DEFAULT_SITE_CONTENT.facebookUrl,
     facebookLabel: incoming.facebookLabel?.trim() || DEFAULT_SITE_CONTENT.facebookLabel,
+    servicesBadge: incoming.servicesBadge?.trim() || DEFAULT_SITE_CONTENT.servicesBadge,
+    servicesTitle: incoming.servicesTitle?.trim() || DEFAULT_SITE_CONTENT.servicesTitle,
+    serviceOneTitle: incoming.serviceOneTitle?.trim() || DEFAULT_SITE_CONTENT.serviceOneTitle,
+    serviceOneDescription: incoming.serviceOneDescription?.trim() || DEFAULT_SITE_CONTENT.serviceOneDescription,
+    serviceOneImage: incoming.serviceOneImage?.trim() || DEFAULT_SITE_CONTENT.serviceOneImage,
+    serviceTwoTitle: incoming.serviceTwoTitle?.trim() || DEFAULT_SITE_CONTENT.serviceTwoTitle,
+    serviceTwoDescription: incoming.serviceTwoDescription?.trim() || DEFAULT_SITE_CONTENT.serviceTwoDescription,
+    serviceTwoImage: incoming.serviceTwoImage?.trim() || DEFAULT_SITE_CONTENT.serviceTwoImage,
+    serviceThreeTitle: incoming.serviceThreeTitle?.trim() || DEFAULT_SITE_CONTENT.serviceThreeTitle,
+    serviceThreeDescription: incoming.serviceThreeDescription?.trim() || DEFAULT_SITE_CONTENT.serviceThreeDescription,
+    serviceThreeImage: incoming.serviceThreeImage?.trim() || DEFAULT_SITE_CONTENT.serviceThreeImage,
   };
 };
 
@@ -167,6 +200,9 @@ export const writeSiteContent = async (value: SiteContent) => {
     ...normalized,
     heroImage: await uploadSiteImageIfNeeded('hero-image', normalized.heroImage),
     aboutImage: await uploadSiteImageIfNeeded('about-image', normalized.aboutImage),
+    serviceOneImage: await uploadSiteImageIfNeeded('service-one-image', normalized.serviceOneImage),
+    serviceTwoImage: await uploadSiteImageIfNeeded('service-two-image', normalized.serviceTwoImage),
+    serviceThreeImage: await uploadSiteImageIfNeeded('service-three-image', normalized.serviceThreeImage),
   };
 
   const supabase = getSupabaseAdmin();
