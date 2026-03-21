@@ -39,9 +39,15 @@ export function ProductDetailModal({
         </button>
 
         <div className="flex w-full flex-col bg-gray-100 md:w-[56%]">
-          <div className="relative flex-1 min-h-[340px] overflow-hidden bg-slate-100 md:min-h-[620px]">
+          <div className="relative flex-1 min-h-[340px] overflow-hidden bg-[linear-gradient(180deg,#f8fafc_0%,#e2e8f0_100%)] p-4 md:min-h-[620px] md:p-6">
             {product.images[currentImageIndex] ? (
-              <img src={product.images[currentImageIndex]} alt={product.name} className="h-full w-full object-contain" />
+              <div className="flex h-full w-full items-center justify-center rounded-2xl bg-white/70 p-2 shadow-inner md:p-4">
+                <img
+                  src={product.images[currentImageIndex]}
+                  alt={product.name}
+                  className="max-h-full max-w-full object-contain object-center"
+                />
+              </div>
             ) : (
               <div className="w-full h-full bg-gray-300 flex items-center justify-center"><span className="text-gray-500">Tidak ada gambar</span></div>
             )}
@@ -81,7 +87,7 @@ export function ProductDetailModal({
                   onClick={() => onSelectImage(idx)}
                   className={`shrink-0 w-14 h-14 rounded-lg overflow-hidden border-2 transition-all ${idx === currentImageIndex ? 'border-blue-600 ring-2 ring-blue-300' : 'border-gray-300'}`}
                 >
-                  {img ? <img src={img} alt={`Foto ${idx + 1}`} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gray-300" />}
+                  {img ? <img src={img} alt={`Foto ${idx + 1}`} className="w-full h-full object-contain bg-white" /> : <div className="w-full h-full bg-gray-300" />}
                 </button>
               ))}
             </div>
