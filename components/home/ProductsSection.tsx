@@ -12,6 +12,9 @@ type ProductsSectionProps = {
   isLoadingProducts: boolean;
   productsError: string;
   selectedCategory: string;
+  badge: string;
+  title: string;
+  description: string;
   onSelectCategory: (category: string) => void;
   onViewProduct: (product: Product) => void;
 };
@@ -22,6 +25,9 @@ export function ProductsSection({
   isLoadingProducts,
   productsError,
   selectedCategory,
+  badge,
+  title,
+  description,
   onSelectCategory,
   onViewProduct,
 }: ProductsSectionProps) {
@@ -42,12 +48,10 @@ export function ProductsSection({
         <div className="mb-10 flex flex-col gap-6 rounded-[32px] border border-slate-200/70 bg-white/90 p-6 shadow-[0_24px_80px_-48px_rgba(15,23,42,0.35)] backdrop-blur md:p-8">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl animate-fade-in-up">
-              <p className="mb-3 text-sm font-semibold uppercase tracking-[0.28em] text-cyan-600">Pilihan Produk</p>
-              <h2 className="mb-3 text-3xl font-bold text-slate-900 md:text-4xl">
-                Produk & Paket Universal Komputer
-              </h2>
+              <p className="mb-3 text-sm font-semibold uppercase tracking-[0.28em] text-cyan-600">{badge}</p>
+              <h2 className="mb-3 text-3xl font-bold text-slate-900 md:text-4xl">{title}</h2>
               <p className="text-base leading-7 text-slate-600">
-                Jelajahi perangkat, komponen, dan paket rakitan dengan tampilan yang lebih rapi seperti katalog komersial.
+                {description}
               </p>
             </div>
 

@@ -13,12 +13,14 @@ import { StatsSection } from '@/components/home/StatsSection';
 import { WhatsAppFloatingButton } from '@/components/home/WhatsAppFloatingButton';
 import { useProductOrdering } from '@/hooks/use-product-ordering';
 import { useProducts } from '@/hooks/use-products';
+import { useSiteContent } from '@/hooks/use-site-content';
 import { filterProductsByCategory } from '@/lib/homepage';
 import { rememberPreferredCategory } from '@/lib/product-preferences';
 import type { Product } from '@/lib/product-schema';
 
 export default function Home() {
   const { products, isLoadingProducts, productsError } = useProducts();
+  const { siteContent } = useSiteContent();
   const orderedProducts = useProductOrdering(products);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('Semua');
@@ -51,7 +53,7 @@ export default function Home() {
         onCloseMenu={() => setIsMenuOpen(false)}
       />
 
-      <HeroBanner />
+      <HeroBanner imageSrc={siteContent.heroImage} />
 
       <ProductsSection
         products={products}
@@ -59,6 +61,9 @@ export default function Home() {
         isLoadingProducts={isLoadingProducts}
         productsError={productsError}
         selectedCategory={selectedCategory}
+        badge={siteContent.productsBadge}
+        title={siteContent.productsTitle}
+        description={siteContent.productsDescription}
         onSelectCategory={(category) => {
           rememberPreferredCategory(category);
           setSelectedCategory(category);
@@ -75,10 +80,28 @@ export default function Home() {
         onSelectImage={setCurrentImageIndex}
       />
 
-      <AboutSection />
+      <AboutSection
+        badge={siteContent.aboutBadge}
+        title={siteContent.aboutTitle}
+        paragraphOne={siteContent.aboutParagraphOne}
+        paragraphTwo={siteContent.aboutParagraphTwo}
+        imageSrc={siteContent.aboutImage}
+      />
       <StatsSection />
       <ServicesSection />
-      <SiteFooter />
+      <SiteFooter
+        badge={siteContent.footerBadge}
+        title={siteContent.footerTitle}
+        description={siteContent.footerDescription}
+        phone={siteContent.contactPhone}
+        email={siteContent.contactEmail}
+        addressLine1={siteContent.contactAddressLine1}
+        addressLine2={siteContent.contactAddressLine2}
+        instagramUrl={siteContent.instagramUrl}
+        instagramLabel={siteContent.instagramLabel}
+        facebookUrl={siteContent.facebookUrl}
+        facebookLabel={siteContent.facebookLabel}
+      />
       <WhatsAppFloatingButton />
     </div>
   );

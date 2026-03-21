@@ -1,23 +1,40 @@
 'use client';
 
+import { LandingPageSettings } from '@/components/admin/LandingPageSettings';
+import { PRODUCT_CATEGORIES, PRODUCT_CONDITIONS } from '@/lib/homepage';
+import { normalizeStoredProducts, type Product } from '@/lib/product-schema';
+import { DEFAULT_SITE_CONTENT, type SiteContent } from '@/lib/site-content';
+import { createClient as createSupabaseBrowserClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { PRODUCT_CATEGORIES, PRODUCT_CONDITIONS } from '@/lib/homepage';
-import type { Product } from '@/lib/product-schema';
-import { normalizeStoredProducts } from '@/lib/product-schema';
-import { createClient as createSupabaseBrowserClient } from '@/lib/supabase/client';
 
 const MAX_IMAGES = 5;
+
+type AdminMenu = 'landing' | 'products';
+
+const readFileAsDataUrl = (file: File) =>
+  new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 
 export default function AdminPage() {
   const router = useRouter();
   const importInputRef = useRef<HTMLInputElement | null>(null);
+  const [activeMenu, setActiveMenu] = useState<AdminMenu>('landing');
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
   const [productsError, setProductsError] = useState('');
+  const [isSavingProducts, setIsSavingProducts] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [siteContent, setSiteContent] = useState<SiteContent>(DEFAULT_SITE_CONTENT);
+  const [isLoadingSiteContent, setIsLoadingSiteContent] = useState(true);
+  const [siteContentError, setSiteContentError] = useState('');
+  const [isSavingSiteContent, setIsSavingSiteContent] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     price: '',
@@ -26,7 +43,7 @@ export default function AdminPage() {
     category: 'Laptop',
     condition: 'Baru' as Product['condition'],
     images: Array(MAX_IMAGES).fill(''),
-    stock: ''
+    stock: '',
   });
 
   useEffect(() => {
@@ -37,6 +54,7 @@ export default function AdminPage() {
           const errorData = (await response.json()) as { message?: string };
           throw new Error(errorData.message || 'Gagal memuat produk');
         }
+
         const data = (await response.json()) as Product[];
 
         if (data.length === 0 && typeof window !== 'undefined') {
@@ -59,17 +77,37 @@ export default function AdminPage() {
       }
     };
 
-    loadProducts();
+    const loadSiteContent = async () => {
+      try {
+        const response = await fetch('/api/site-content', { cache: 'no-store' });
+        if (!response.ok) {
+          const errorData = (await response.json()) as { message?: string };
+          throw new Error(errorData.message || 'Gagal memuat konten landing page');
+        }
+
+        const data = (await response.json()) as SiteContent;
+        setSiteContent({ ...DEFAULT_SITE_CONTENT, ...data });
+        setSiteContentError('');
+      } catch (error) {
+        console.error(error);
+        setSiteContent(DEFAULT_SITE_CONTENT);
+        setSiteContentError(error instanceof Error ? error.message : 'Gagal memuat konten landing page.');
+      } finally {
+        setIsLoadingSiteContent(false);
+      }
+    };
+
+    void loadProducts();
+    void loadSiteContent();
   }, []);
 
-  // Helper function to format price with Rupiah
-  const formatPriceInput = (value: string): string => {
+  const formatPriceInput = (value: string) => {
     const numStr = value.replace(/\D/g, '');
     if (!numStr) return '';
     return numStr.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
   };
 
-  const formatDiscountInput = (value: string): string => {
+  const formatDiscountInput = (value: string) => {
     const numStr = value.replace(/\D/g, '');
     if (!numStr) return '';
     return numStr.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
@@ -78,13 +116,8 @@ export default function AdminPage() {
   const replaceAllProducts = async (updatedProducts: Product[]) => {
     const response = await fetch('/api/products', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        action: 'replace_all',
-        products: updatedProducts,
-      }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'replace_all', products: updatedProducts }),
     });
 
     if (!response.ok) {
@@ -100,13 +133,8 @@ export default function AdminPage() {
   const saveSingleProduct = async (product: Product) => {
     const response = await fetch('/api/products', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        action: 'upsert',
-        product,
-      }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'upsert', product }),
     });
 
     if (!response.ok) {
@@ -122,13 +150,8 @@ export default function AdminPage() {
   const deleteSingleProduct = async (id: number) => {
     const response = await fetch('/api/products', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        action: 'delete',
-        id,
-      }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'delete', id }),
     });
 
     if (!response.ok) {
@@ -139,6 +162,32 @@ export default function AdminPage() {
     const savedProducts = (await response.json()) as Product[];
     setProducts(savedProducts);
     setProductsError('');
+  };
+
+  const saveSiteContent = async () => {
+    setIsSavingSiteContent(true);
+    try {
+      const response = await fetch('/api/site-content', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(siteContent),
+      });
+
+      if (!response.ok) {
+        const errorData = (await response.json()) as { message?: string };
+        throw new Error(errorData.message || 'Gagal menyimpan landing page');
+      }
+
+      const savedContent = (await response.json()) as SiteContent;
+      setSiteContent({ ...DEFAULT_SITE_CONTENT, ...savedContent });
+      setSiteContentError('');
+      alert('Kustomisasi landing page berhasil disimpan.');
+    } catch (error) {
+      console.error(error);
+      alert(error instanceof Error ? error.message : 'Gagal menyimpan landing page.');
+    } finally {
+      setIsSavingSiteContent(false);
+    }
   };
 
   const downloadBackup = () => {
@@ -173,164 +222,88 @@ export default function AdminPage() {
 
       if (!isConfirmed) return;
 
+      setIsSavingProducts(true);
       await replaceAllProducts(normalizedProducts);
       alert('Backup berhasil diimport.');
     } catch (error) {
       console.error(error);
       alert('File backup gagal dibaca. Pastikan format JSON valid.');
     } finally {
-      if (event.target) {
-        event.target.value = '';
-      }
+      setIsSavingProducts(false);
+      event.target.value = '';
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = event.target;
     if (name === 'price') {
-      setFormData(prev => ({
-        ...prev,
-        price: formatPriceInput(value)
-      }));
-    } else if (name === 'discount') {
-      setFormData(prev => ({
-        ...prev,
-        discount: formatDiscountInput(value)
-      }));
-    } else if (name === 'stock') {
-      const numValue = value.replace(/\D/g, '');
-      setFormData(prev => ({
-        ...prev,
-        [name]: numValue
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: value
-      }));
+      setFormData((prev) => ({ ...prev, price: formatPriceInput(value) }));
+      return;
     }
+    if (name === 'discount') {
+      setFormData((prev) => ({ ...prev, discount: formatDiscountInput(value) }));
+      return;
+    }
+    if (name === 'stock') {
+      setFormData((prev) => ({ ...prev, stock: value.replace(/\D/g, '') }));
+      return;
+    }
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const newImages = [...formData.images];
-        newImages[index] = reader.result as string;
-        setFormData(prev => ({
-          ...prev,
-          images: newImages
-        }));
-      };
-      reader.readAsDataURL(file);
-    }
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const nextImages = [...formData.images];
+      nextImages[index] = reader.result as string;
+      setFormData((prev) => ({ ...prev, images: nextImages }));
+    };
+    reader.readAsDataURL(file);
+    event.target.value = '';
   };
 
+  const handleSiteContentChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = event.target;
+    setSiteContent((prev) => ({ ...prev, [name]: value }));
+  };
 
+  const handleLandingImageUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+    field: 'heroImage' | 'aboutImage'
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const dataUrl = await readFileAsDataUrl(file);
+      setSiteContent((prev) => ({ ...prev, [field]: dataUrl }));
+    } catch (error) {
+      console.error(error);
+      alert('Gagal membaca gambar. Silakan coba lagi.');
+    } finally {
+      event.target.value = '';
+    }
+  };
 
   const handleRemoveImage = (index: number) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      images: prev.images.map((image, currentIndex) => (currentIndex === index ? '' : image))
+      images: prev.images.map((image, currentIndex) => (currentIndex === index ? '' : image)),
     }));
   };
 
-  const validateForm = (): boolean => {
+  const validateForm = () => {
     const parsedDiscount = formData.discount ? parseInt(formData.discount.replace(/\./g, ''), 10) : 0;
-
-    if (!formData.name.trim()) {
-      alert('Nama produk harus diisi!');
-      return false;
-    }
-    if (!formData.price.trim()) {
-      alert('Harga harus diisi!');
-      return false;
-    }
-    if (!formData.description.trim()) {
-      alert('Deskripsi harus diisi!');
-      return false;
-    }
-    if (formData.images.length === 0 || !formData.images[0]) {
-      alert('Minimal 1 foto harus diunggah!');
-      return false;
-    }
-    if (formData.stock && parseInt(formData.stock as string) < 0) {
-      alert('Stok tidak boleh negatif!');
-      return false;
-    }
-    if (formData.discount && (parsedDiscount < 0 || parsedDiscount > 99999999)) {
-      alert('Diskon tidak valid!');
-      return false;
-    }
+    if (!formData.name.trim()) return alert('Nama produk harus diisi!'), false;
+    if (!formData.price.trim()) return alert('Harga harus diisi!'), false;
+    if (!formData.description.trim()) return alert('Deskripsi harus diisi!'), false;
+    if (formData.images.length === 0 || !formData.images[0]) return alert('Minimal 1 foto harus diunggah!'), false;
+    if (formData.stock && parseInt(formData.stock, 10) < 0) return alert('Stok tidak boleh negatif!'), false;
+    if (formData.discount && (parsedDiscount < 0 || parsedDiscount > 99999999)) return alert('Diskon tidak valid!'), false;
     return true;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateForm()) return;
-
-    // Generate a unique ID: use the maximum ID + 1, or 1 if empty
-    const newId = products.length > 0 
-      ? Math.max(...products.map(p => p.id)) + 1 
-      : 1;
-
-    // Convert price back to plain number format for storage
-    const plainPrice = formData.price.replace(/\./g, '');
-    const discountValue = formData.discount ? parseInt(formData.discount.replace(/\./g, ''), 10) : 0;
-    const stockValue = formData.stock ? parseInt(formData.stock as string) : 0;
-
-    const productData: Product = {
-      id: editingId || newId,
-      name: formData.name,
-      price: plainPrice,
-      discount: discountValue,
-      description: formData.description,
-      category: formData.category,
-      condition: formData.condition,
-      images: formData.images.filter(img => img),
-      stock: stockValue
-    };
-
-    try {
-      await saveSingleProduct(productData);
-      if (editingId) {
-        setEditingId(null);
-      }
-
-      resetForm();
-    } catch (error) {
-      console.error(error);
-      alert('Gagal menyimpan produk. Silakan coba lagi.');
-    }
-  };
-
-  const handleEdit = (product: Product) => {
-    const formattedPrice = formatPriceInput(product.price);
-    setFormData({
-      name: product.name,
-      price: formattedPrice,
-      discount: product.discount ? formatDiscountInput(product.discount.toString()) : '',
-      description: product.description,
-      category: product.category,
-      condition: product.condition,
-      images: [...product.images, ...Array(MAX_IMAGES).fill('')].slice(0, MAX_IMAGES),
-      stock: product.stock ? product.stock.toString() : ''
-    });
-    setEditingId(product.id);
-    setShowForm(true);
-  };
-
-  const handleDelete = async (id: number) => {
-    if (confirm('Yakin ingin menghapus produk ini?')) {
-      try {
-        await deleteSingleProduct(id);
-      } catch (error) {
-        console.error(error);
-        alert('Gagal menghapus produk. Silakan coba lagi.');
-      }
-    }
   };
 
   const resetForm = () => {
@@ -342,14 +315,70 @@ export default function AdminPage() {
       category: 'Laptop',
       condition: 'Baru',
       images: Array(MAX_IMAGES).fill(''),
-      stock: ''
+      stock: '',
     });
+    setEditingId(null);
     setShowForm(false);
   };
 
-  const handleCancel = () => {
-    setEditingId(null);
-    resetForm();
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!validateForm()) return;
+
+    const newId = products.length > 0 ? Math.max(...products.map((product) => product.id)) + 1 : 1;
+    const discountValue = formData.discount ? parseInt(formData.discount.replace(/\./g, ''), 10) : 0;
+    const stockValue = formData.stock ? parseInt(formData.stock, 10) : 0;
+    const productData: Product = {
+      id: editingId || newId,
+      name: formData.name,
+      price: formData.price.replace(/\./g, ''),
+      discount: discountValue,
+      description: formData.description,
+      category: formData.category,
+      condition: formData.condition,
+      images: formData.images.filter(Boolean),
+      stock: stockValue,
+    };
+
+    try {
+      setIsSavingProducts(true);
+      await saveSingleProduct(productData);
+      resetForm();
+    } catch (error) {
+      console.error(error);
+      alert('Gagal menyimpan produk. Silakan coba lagi.');
+    } finally {
+      setIsSavingProducts(false);
+    }
+  };
+
+  const handleEdit = (product: Product) => {
+    setFormData({
+      name: product.name,
+      price: formatPriceInput(product.price),
+      discount: product.discount ? formatDiscountInput(product.discount.toString()) : '',
+      description: product.description,
+      category: product.category,
+      condition: product.condition,
+      images: [...product.images, ...Array(MAX_IMAGES).fill('')].slice(0, MAX_IMAGES),
+      stock: product.stock ? product.stock.toString() : '',
+    });
+    setEditingId(product.id);
+    setActiveMenu('products');
+    setShowForm(true);
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm('Yakin ingin menghapus produk ini?')) return;
+    try {
+      setIsSavingProducts(true);
+      await deleteSingleProduct(id);
+    } catch (error) {
+      console.error(error);
+      alert('Gagal menghapus produk. Silakan coba lagi.');
+    } finally {
+      setIsSavingProducts(false);
+    }
   };
 
   const handleLogout = async () => {
@@ -366,13 +395,12 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-linear-to-r from-slate-950 via-blue-900 to-cyan-700 text-white py-6 px-4 shadow-lg">
-        <div className="max-w-7xl mx-auto">
+      <div className="bg-linear-to-r from-slate-950 via-blue-900 to-cyan-700 px-4 py-6 text-white shadow-lg">
+        <div className="mx-auto max-w-7xl">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <h1 className="text-3xl font-bold font-brand">Admin Dashboard</h1>
-              <p className="text-blue-100 mt-2">Kelola produk Universal Komputer</p>
+              <h1 className="font-brand text-3xl font-bold">Admin Dashboard</h1>
+              <p className="mt-2 text-blue-100">Kelola landing page dan produk Universal Komputer dalam satu dashboard.</p>
             </div>
             <div className="flex items-center gap-2 self-start md:self-auto">
               <Link
@@ -393,377 +421,423 @@ export default function AdminPage() {
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-12">
-        <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div>
-            <p className="text-sm font-semibold text-slate-700">Backup Data Produk</p>
-            <p className="text-sm text-slate-500">Simpan cadangan JSON secara berkala sebelum update besar atau import data.</p>
-          </div>
+      <div className="mx-auto max-w-7xl px-4 py-12">
+        <div className="grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)]">
+          <aside className="h-fit rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="mb-4 rounded-2xl bg-linear-to-br from-slate-950 via-blue-900 to-cyan-700 p-5 text-white">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-100">Menu Admin</p>
+              <h2 className="mt-2 font-brand text-2xl font-bold">Kelola website dengan lebih rapi</h2>
+              <p className="mt-2 text-sm leading-6 text-blue-100">Pilih menu di bawah untuk mengubah landing page atau mengatur katalog produk.</p>
+            </div>
 
-          <div className="flex flex-wrap gap-3">
-            <button
-              type="button"
-              onClick={downloadBackup}
-              disabled={products.length === 0}
-              className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              Export Backup
-            </button>
-            <button
-              type="button"
-              onClick={() => importInputRef.current?.click()}
-              className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100"
-            >
-              Import Backup
-            </button>
-            <input
-              ref={importInputRef}
-              type="file"
-              accept=".json,application/json"
-              className="hidden"
-              onChange={handleImportBackup}
-            />
-          </div>
-        </div>
+            <nav className="space-y-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveMenu('landing');
+                  setShowForm(false);
+                }}
+                className={`flex w-full items-start gap-3 rounded-2xl px-4 py-3 text-left transition ${
+                  activeMenu === 'landing'
+                    ? 'bg-cyan-50 text-cyan-800 ring-1 ring-cyan-200'
+                    : 'text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                <span className={`mt-1 h-2.5 w-2.5 rounded-full ${activeMenu === 'landing' ? 'bg-cyan-500' : 'bg-slate-300'}`} />
+                <span>
+                  <span className="block text-sm font-bold">Kustomisasi Landing Page</span>
+                  <span className="mt-1 block text-xs leading-5 text-slate-500">Edit banner, judul, foto, footer, dan kontak website.</span>
+                </span>
+              </button>
 
-        {/* Add Button */}
-        {!showForm && (
-          <button
-            onClick={() => setShowForm(true)}
-            className="mb-8 bg-linear-to-r from-green-500 to-green-600 text-white px-8 py-3 rounded-lg font-bold hover:shadow-lg transition-all duration-200 inline-flex items-center gap-2"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Tambah Produk Baru
-          </button>
-        )}
+              <button
+                type="button"
+                onClick={() => setActiveMenu('products')}
+                className={`flex w-full items-start gap-3 rounded-2xl px-4 py-3 text-left transition ${
+                  activeMenu === 'products'
+                    ? 'bg-blue-50 text-blue-800 ring-1 ring-blue-200'
+                    : 'text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                <span className={`mt-1 h-2.5 w-2.5 rounded-full ${activeMenu === 'products' ? 'bg-blue-500' : 'bg-slate-300'}`} />
+                <span>
+                  <span className="block text-sm font-bold">Kelola Produk</span>
+                  <span className="mt-1 block text-xs leading-5 text-slate-500">Tambah, edit, hapus, backup, dan import data produk toko.</span>
+                </span>
+              </button>
+            </nav>
+          </aside>
 
-        {/* Form */}
-        {showForm && (
-          <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-8 border-2 border-blue-200">
-            <h2 className="text-2xl font-bold mb-6 text-gray-800">
-              {editingId ? 'Edit Produk' : 'Tambah Produk Baru'}
-            </h2>
-            
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Row 1: Basic Info */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                {/* Nama */}
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">
-                    Nama Produk <span className="text-red-600">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    placeholder="Contoh: Laptop HP Pavilion"
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-slate-900 focus:border-blue-500 focus:outline-none transition-colors"
-                  />
-                </div>
+          <div className="min-w-0">
+            {activeMenu === 'landing' ? (
+              <LandingPageSettings
+                siteContent={siteContent}
+                isLoading={isLoadingSiteContent}
+                isSaving={isSavingSiteContent}
+                error={siteContentError}
+                onChange={handleSiteContentChange}
+                onImageUpload={handleLandingImageUpload}
+                onSave={saveSiteContent}
+              />
+            ) : (
+              <div className="space-y-8">
+                <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-700">Backup Data Produk</p>
+                      <p className="text-sm text-slate-500">Simpan cadangan JSON secara berkala sebelum update besar atau import data.</p>
+                    </div>
 
-                {/* Harga */}
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">
-                    Harga <span className="text-red-600">*</span>
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <span className="text-gray-700 font-semibold">Rp</span>
-                    <input
-                      type="text"
-                      name="price"
-                      value={formData.price}
-                      onChange={handleInputChange}
-                      placeholder="1500000"
-                      className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-slate-900 focus:border-blue-500 focus:outline-none transition-colors"
-                    />
-                  </div>
-                  <p className="text-xs text-gray-500 mt-1">Otomatis di format (Rp 1.500.000)</p>
-                </div>
-
-                {/* Kategori */}
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">
-                    Kategori <span className="text-red-600">*</span>
-                  </label>
-                  <select
-                    name="category"
-                    value={formData.category}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-slate-900 focus:border-blue-500 focus:outline-none transition-colors"
-                  >
-                    {PRODUCT_CATEGORIES.map(cat => (
-                      <option key={cat} value={cat}>{cat}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">
-                    Kondisi Barang <span className="text-red-600">*</span>
-                  </label>
-                  <select
-                    name="condition"
-                    value={formData.condition}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-slate-900 focus:border-blue-500 focus:outline-none transition-colors"
-                  >
-                    {PRODUCT_CONDITIONS.map((condition) => (
-                      <option key={condition} value={condition}>{condition}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {/* Row 2: Stock & Discount */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Stok */}
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">
-                    Jumlah Stok (pcs) <span className="text-red-600">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    name="stock"
-                    value={formData.stock}
-                    onChange={handleInputChange}
-                    min="0"
-                    placeholder="5"
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-slate-900 focus:border-blue-500 focus:outline-none transition-colors"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">Kosongkan jika stok habis</p>
-                </div>
-
-                {/* Diskon */}
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">
-                    Diskon Custom (Rp) <span className="text-gray-500 font-normal">(Opsional)</span>
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <span className="text-gray-700 font-semibold">Rp</span>
-                    <input
-                      type="text"
-                      name="discount"
-                      value={formData.discount}
-                      onChange={handleInputChange}
-                      placeholder="50.000"
-                      className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-slate-900 focus:border-blue-500 focus:outline-none transition-colors"
-                    />
-                  </div>
-                  <p className="text-xs text-gray-500 mt-1">Kosongkan jika tidak ada diskon</p>
-                </div>
-              </div>
-
-              {/* Deskripsi */}
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Deskripsi Produk <span className="text-red-600">*</span>
-                </label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  placeholder="Jelaskan detail, spesifikasi, dan keunggulan produk..."
-                  rows={4}
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-slate-900 focus:border-blue-500 focus:outline-none transition-colors resize-none"
-                />
-              </div>
-
-              {/* Images Section */}
-              <div className="border-t-2 border-gray-200 pt-6">
-                <label className="block text-sm font-bold text-gray-700 mb-3">
-                  Foto Produk <span className="text-red-600">*</span>
-                  <p className="text-xs font-normal text-gray-500 mt-1">Maksimal 5 foto, minimal 1 foto (foto pertama akan menjadi foto utama)</p>
-                </label>
-
-                {/* Photo Upload Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-                  {formData.images.map((image, idx) => (
-                    <div key={idx} className="relative group">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => handleImageUpload(e, idx)}
-                        className="hidden"
-                        id={`photo-input-${idx}`}
-                      />
-                      <label
-                        htmlFor={`photo-input-${idx}`}
-                        className={`w-full aspect-square rounded-lg border-2 border-dashed cursor-pointer transition-all flex flex-col items-center justify-center overflow-hidden ${
-                          image ? 'border-green-500 bg-green-50' : 'border-gray-300 hover:border-blue-500 hover:bg-blue-50'
-                        }`}
+                    <div className="flex flex-wrap gap-3">
+                      <button
+                        type="button"
+                        onClick={downloadBackup}
+                        disabled={products.length === 0}
+                        className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                       >
-                        {image ? (
-                          <div className="relative w-full h-full overflow-hidden">
-                            <img src={image} alt={`Foto ${idx + 1}`} className="w-full h-full object-cover" />
-                            {idx === 0 && (
-                              <div className="absolute bottom-0 left-0 right-0 bg-blue-600 text-white text-xs font-bold text-center py-0.5">UTAMA</div>
-                            )}
+                        Export Backup
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => importInputRef.current?.click()}
+                        className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100"
+                      >
+                        Import Backup
+                      </button>
+                      <input
+                        ref={importInputRef}
+                        type="file"
+                        accept=".json,application/json"
+                        className="hidden"
+                        onChange={handleImportBackup}
+                      />
+                    </div>
+                  </div>
+
+                  {!showForm ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingId(null);
+                        setShowForm(true);
+                      }}
+                      className="inline-flex items-center gap-2 rounded-lg bg-linear-to-r from-green-500 to-green-600 px-8 py-3 font-bold text-white transition-all duration-200 hover:shadow-lg"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                      Tambah Produk Baru
+                    </button>
+                  ) : null}
+                </div>
+
+                {showForm ? (
+                  <div className="rounded-xl border-2 border-blue-200 bg-white p-6 shadow-lg md:p-8">
+                    <h2 className="mb-6 text-2xl font-bold text-gray-800">
+                      {editingId ? 'Edit Produk' : 'Tambah Produk Baru'}
+                    </h2>
+
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+                        <div>
+                          <label className="mb-2 block text-sm font-bold text-gray-700">
+                            Nama Produk <span className="text-red-600">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            name="name"
+                            value={formData.name}
+                            onChange={handleInputChange}
+                            placeholder="Contoh: Laptop HP Pavilion"
+                            className="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-slate-900 transition-colors focus:border-blue-500 focus:outline-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="mb-2 block text-sm font-bold text-gray-700">
+                            Harga <span className="text-red-600">*</span>
+                          </label>
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold text-gray-700">Rp</span>
+                            <input
+                              type="text"
+                              name="price"
+                              value={formData.price}
+                              onChange={handleInputChange}
+                              placeholder="1500000"
+                              className="flex-1 rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-slate-900 transition-colors focus:border-blue-500 focus:outline-none"
+                            />
                           </div>
-                        ) : (
-                          <div className="flex flex-col items-center justify-center gap-1 p-2 text-center">
-                            <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                            </svg>
-                            <span className="text-xs font-semibold text-gray-600">{idx === 0 ? 'Utama' : `${idx + 1}`}</span>
+                          <p className="mt-1 text-xs text-gray-500">Otomatis di format (Rp 1.500.000)</p>
+                        </div>
+
+                        <div>
+                          <label className="mb-2 block text-sm font-bold text-gray-700">
+                            Kategori <span className="text-red-600">*</span>
+                          </label>
+                          <select
+                            name="category"
+                            value={formData.category}
+                            onChange={handleInputChange}
+                            className="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-slate-900 transition-colors focus:border-blue-500 focus:outline-none"
+                          >
+                            {PRODUCT_CATEGORIES.map((category) => (
+                              <option key={category} value={category}>
+                                {category}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="mb-2 block text-sm font-bold text-gray-700">
+                            Kondisi Barang <span className="text-red-600">*</span>
+                          </label>
+                          <select
+                            name="condition"
+                            value={formData.condition}
+                            onChange={handleInputChange}
+                            className="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-slate-900 transition-colors focus:border-blue-500 focus:outline-none"
+                          >
+                            {PRODUCT_CONDITIONS.map((condition) => (
+                              <option key={condition} value={condition}>
+                                {condition}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        <div>
+                          <label className="mb-2 block text-sm font-bold text-gray-700">
+                            Jumlah Stok (pcs) <span className="text-red-600">*</span>
+                          </label>
+                          <input
+                            type="number"
+                            name="stock"
+                            value={formData.stock}
+                            onChange={handleInputChange}
+                            min="0"
+                            placeholder="5"
+                            className="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-slate-900 transition-colors focus:border-blue-500 focus:outline-none"
+                          />
+                          <p className="mt-1 text-xs text-gray-500">Kosongkan jika stok habis</p>
+                        </div>
+
+                        <div>
+                          <label className="mb-2 block text-sm font-bold text-gray-700">
+                            Diskon Custom (Rp) <span className="font-normal text-gray-500">(Opsional)</span>
+                          </label>
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold text-gray-700">Rp</span>
+                            <input
+                              type="text"
+                              name="discount"
+                              value={formData.discount}
+                              onChange={handleInputChange}
+                              placeholder="50.000"
+                              className="flex-1 rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-slate-900 transition-colors focus:border-blue-500 focus:outline-none"
+                            />
                           </div>
-                        )}
-                      </label>
-                      {image && (
+                          <p className="mt-1 text-xs text-gray-500">Kosongkan jika tidak ada diskon</p>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="mb-2 block text-sm font-bold text-gray-700">
+                          Deskripsi Produk <span className="text-red-600">*</span>
+                        </label>
+                        <textarea
+                          name="description"
+                          value={formData.description}
+                          onChange={handleInputChange}
+                          placeholder="Jelaskan detail, spesifikasi, dan keunggulan produk..."
+                          rows={4}
+                          className="w-full resize-none rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-slate-900 transition-colors focus:border-blue-500 focus:outline-none"
+                        />
+                      </div>
+
+                      <div className="border-t-2 border-gray-200 pt-6">
+                        <label className="mb-3 block text-sm font-bold text-gray-700">
+                          Foto Produk <span className="text-red-600">*</span>
+                          <p className="mt-1 text-xs font-normal text-gray-500">Maksimal 5 foto, minimal 1 foto (foto pertama akan menjadi foto utama)</p>
+                        </label>
+
+                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
+                          {formData.images.map((image, idx) => (
+                            <div key={idx} className="group relative">
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(event) => handleImageUpload(event, idx)}
+                                className="hidden"
+                                id={`photo-input-${idx}`}
+                              />
+                              <label
+                                htmlFor={`photo-input-${idx}`}
+                                className={`flex aspect-square w-full cursor-pointer flex-col items-center justify-center overflow-hidden rounded-lg border-2 border-dashed transition-all ${
+                                  image ? 'border-green-500 bg-green-50' : 'border-gray-300 hover:border-blue-500 hover:bg-blue-50'
+                                }`}
+                              >
+                                {image ? (
+                                  <div className="relative h-full w-full overflow-hidden">
+                                    <img src={image} alt={`Foto ${idx + 1}`} className="h-full w-full object-cover" />
+                                    {idx === 0 ? (
+                                      <div className="absolute bottom-0 left-0 right-0 bg-blue-600 py-0.5 text-center text-xs font-bold text-white">UTAMA</div>
+                                    ) : null}
+                                  </div>
+                                ) : (
+                                  <div className="flex flex-col items-center justify-center gap-1 p-2 text-center">
+                                    <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                    </svg>
+                                    <span className="text-xs font-semibold text-gray-600">{idx === 0 ? 'Utama' : `${idx + 1}`}</span>
+                                  </div>
+                                )}
+                              </label>
+                              {image ? (
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveImage(idx)}
+                                  className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white opacity-0 transition-opacity hover:bg-red-600 group-hover:opacity-100"
+                                >
+                                  ×
+                                </button>
+                              ) : null}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="flex gap-3 border-t-2 border-gray-200 pt-4">
+                        <button
+                          type="submit"
+                          disabled={isSavingProducts}
+                          className="flex-1 rounded-lg bg-linear-to-r from-blue-600 to-cyan-500 px-6 py-3 font-bold text-white transition-all duration-200 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          {isSavingProducts ? 'Menyimpan...' : editingId ? 'Update Produk' : 'Simpan Produk'}
+                        </button>
                         <button
                           type="button"
-                          onClick={() => handleRemoveImage(idx)}
-                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={resetForm}
+                          className="flex-1 rounded-lg bg-gray-300 px-6 py-3 font-bold text-gray-700 transition-colors hover:bg-gray-400"
                         >
-                          ×
+                          Batal
                         </button>
-                      )}
+                      </div>
+                    </form>
+                  </div>
+                ) : null}
+
+                <div className="overflow-hidden rounded-xl bg-white shadow-lg">
+                  <div className="border-b-2 border-blue-200 bg-linear-to-r from-blue-50 to-cyan-50 p-6">
+                    <h2 className="text-2xl font-bold text-gray-800">Daftar Produk ({products.length})</h2>
+                  </div>
+
+                  {isLoadingProducts ? (
+                    <div className="p-12 text-center text-gray-500">
+                      <p className="text-lg">Sedang memuat produk...</p>
                     </div>
-                  ))}
+                  ) : productsError ? (
+                    <div className="p-12 text-center">
+                      <p className="mb-2 text-lg text-red-600">Admin belum bisa memuat produk</p>
+                      <p className="text-gray-500">{productsError}</p>
+                    </div>
+                  ) : products.length === 0 ? (
+                    <div className="p-12 text-center text-gray-500">
+                      <p className="text-lg">Belum ada produk. Klik tombol &quot;Tambah Produk Baru&quot; untuk memulai.</p>
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead className="border-b-2 border-gray-200 bg-gray-50">
+                          <tr>
+                            <th className="px-4 py-3 text-left font-bold text-gray-700">Foto</th>
+                            <th className="px-4 py-3 text-left font-bold text-gray-700">Nama Produk</th>
+                            <th className="px-4 py-3 text-left font-bold text-gray-700">Kategori</th>
+                            <th className="px-4 py-3 text-left font-bold text-gray-700">Kondisi</th>
+                            <th className="px-4 py-3 text-left font-bold text-gray-700">Harga</th>
+                            <th className="px-4 py-3 text-center font-bold text-gray-700">Stok</th>
+                            <th className="px-4 py-3 text-center font-bold text-gray-700">Diskon</th>
+                            <th className="px-4 py-3 text-center font-bold text-gray-700">Foto</th>
+                            <th className="px-4 py-3 text-center font-bold text-gray-700">Aksi</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {products.map((product, idx) => (
+                            <tr key={product.id} className={`border-b transition-colors hover:bg-blue-50 ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
+                              <td className="px-4 py-4">
+                                {product.images && product.images.length > 0 ? (
+                                  <img src={product.images[0]} alt={product.name} className="h-12 w-12 rounded object-cover" />
+                                ) : null}
+                              </td>
+                              <td className="px-4 py-4">
+                                <p className="max-w-xs truncate font-semibold text-gray-800">{product.name}</p>
+                              </td>
+                              <td className="px-4 py-4">
+                                <span className="inline-block rounded bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-700">{product.category}</span>
+                              </td>
+                              <td className="px-4 py-4">
+                                <span className={`inline-block rounded px-2 py-1 text-xs font-semibold ${
+                                  product.condition === 'Second' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'
+                                }`}>
+                                  {product.condition}
+                                </span>
+                              </td>
+                              <td className="px-4 py-4 font-semibold text-gray-800">{product.price}</td>
+                              <td className="px-4 py-4 text-center">
+                                {product.stock === 0 ? (
+                                  <span className="inline-block rounded bg-red-100 px-2 py-1 text-xs font-bold text-red-700">Habis</span>
+                                ) : product.stock < 5 ? (
+                                  <span className="inline-block rounded bg-orange-100 px-2 py-1 text-xs font-semibold text-orange-700">{product.stock} pcs</span>
+                                ) : (
+                                  <span className="inline-block rounded bg-green-100 px-2 py-1 text-xs font-semibold text-green-700">{product.stock} pcs</span>
+                                )}
+                              </td>
+                              <td className="px-4 py-4 text-center">
+                                {product.discount && product.discount > 0 ? (
+                                  <span className="inline-block rounded bg-red-100 px-2 py-1 text-xs font-bold text-red-700">
+                                    -Rp {product.discount.toLocaleString('id-ID')}
+                                  </span>
+                                ) : (
+                                  <span className="text-gray-400">-</span>
+                                )}
+                              </td>
+                              <td className="px-4 py-4 text-center">
+                                <span className="inline-block rounded bg-gray-200 px-2 py-1 text-xs font-semibold text-gray-700">
+                                  {product.images && product.images.length ? product.images.length : 0}
+                                </span>
+                              </td>
+                              <td className="px-4 py-4">
+                                <div className="flex justify-center gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleEdit(product)}
+                                    className="rounded bg-blue-500 px-3 py-1 text-xs font-bold text-white transition-colors hover:bg-blue-600"
+                                  >
+                                    Edit
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDelete(product.id)}
+                                    disabled={isSavingProducts}
+                                    className="rounded bg-red-500 px-3 py-1 text-xs font-bold text-white transition-colors hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-60"
+                                  >
+                                    Hapus
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </div>
               </div>
-
-              {/* Buttons */}
-              <div className="flex gap-3 pt-4 border-t-2 border-gray-200">
-                <button
-                  type="submit"
-                  className="flex-1 bg-linear-to-r from-blue-600 to-cyan-500 text-white px-6 py-3 rounded-lg font-bold hover:shadow-lg transition-all duration-200"
-                >
-                  {editingId ? 'Update Produk' : 'Simpan Produk'}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleCancel}
-                  className="flex-1 bg-gray-300 text-gray-700 px-6 py-3 rounded-lg font-bold hover:bg-gray-400 transition-colors"
-                >
-                  Batal
-                </button>
-              </div>
-            </form>
+            )}
           </div>
-        )}
-
-        {/* Products List */}
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-          <div className="p-6 bg-linear-to-r from-blue-50 to-cyan-50 border-b-2 border-blue-200">
-            <h2 className="text-2xl font-bold text-gray-800">
-              Daftar Produk ({products.length})
-            </h2>
-          </div>
-
-          {isLoadingProducts ? (
-            <div className="p-12 text-center text-gray-500">
-              <p className="text-lg">Sedang memuat produk...</p>
-            </div>
-          ) : productsError ? (
-            <div className="p-12 text-center">
-              <p className="text-lg text-red-600 mb-2">Admin belum bisa memuat produk</p>
-              <p className="text-gray-500">{productsError}</p>
-            </div>
-          ) : products.length === 0 ? (
-            <div className="p-12 text-center text-gray-500">
-              <p className="text-lg">Belum ada produk. Klik tombol &quot;Tambah Produk Baru&quot; untuk memulai.</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-gray-50 border-b-2 border-gray-200">
-                  <tr>
-                    <th className="px-4 py-3 text-left font-bold text-gray-700">Foto</th>
-                    <th className="px-4 py-3 text-left font-bold text-gray-700">Nama Produk</th>
-                    <th className="px-4 py-3 text-left font-bold text-gray-700">Kategori</th>
-                    <th className="px-4 py-3 text-left font-bold text-gray-700">Kondisi</th>
-                    <th className="px-4 py-3 text-left font-bold text-gray-700">Harga</th>
-                    <th className="px-4 py-3 text-center font-bold text-gray-700">Stok</th>
-                    <th className="px-4 py-3 text-center font-bold text-gray-700">Diskon</th>
-                    <th className="px-4 py-3 text-center font-bold text-gray-700">Foto</th>
-                    <th className="px-4 py-3 text-center font-bold text-gray-700">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {products.map((product, idx) => (
-                    <tr key={product.id} className={`border-b ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50 transition-colors`}>
-                      <td className="px-4 py-4">
-                        {product.images && product.images.length > 0 && (
-                          <img
-                            src={product.images[0]}
-                            alt={product.name}
-                            className="w-12 h-12 object-cover rounded"
-                          />
-                        )}
-                      </td>
-                      <td className="px-4 py-4">
-                        <p className="font-semibold text-gray-800 max-w-xs truncate">{product.name}</p>
-                      </td>
-                      <td className="px-4 py-4">
-                        <span className="inline-block bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-semibold">
-                          {product.category}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4">
-                        <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${
-                          product.condition === 'Second'
-                            ? 'bg-amber-100 text-amber-700'
-                            : 'bg-emerald-100 text-emerald-700'
-                        }`}>
-                          {product.condition}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4 font-semibold text-gray-800">{product.price}</td>
-                      <td className="px-4 py-4 text-center">
-                        {product.stock === 0 ? (
-                          <span className="inline-block bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">
-                            Habis
-                          </span>
-                        ) : product.stock < 5 ? (
-                          <span className="inline-block bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs font-semibold">
-                            {product.stock} pcs
-                          </span>
-                        ) : (
-                          <span className="inline-block bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-semibold">
-                            {product.stock} pcs
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-4 py-4 text-center">
-                        {product.discount && product.discount > 0 ? (
-                          <span className="inline-block bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">
-                            -Rp {product.discount.toLocaleString('id-ID')}
-                          </span>
-                        ) : (
-                          <span className="text-gray-400">-</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-4 text-center">
-                        <span className="inline-block bg-gray-200 text-gray-700 px-2 py-1 rounded text-xs font-semibold">
-                          {product.images && product.images.length ? product.images.length : 0}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4">
-                        <div className="flex gap-2 justify-center">
-                          <button
-                            onClick={() => handleEdit(product)}
-                            className="px-3 py-1 bg-blue-500 text-white rounded text-xs font-bold hover:bg-blue-600 transition-colors"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDelete(product.id)}
-                            className="px-3 py-1 bg-red-500 text-white rounded text-xs font-bold hover:bg-red-600 transition-colors"
-                          >
-                            Hapus
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
         </div>
       </div>
     </div>

@@ -9,12 +9,14 @@ import { SiteFooter } from '@/components/home/SiteFooter';
 import { WhatsAppFloatingButton } from '@/components/home/WhatsAppFloatingButton';
 import { useProductOrdering } from '@/hooks/use-product-ordering';
 import { useProducts } from '@/hooks/use-products';
+import { useSiteContent } from '@/hooks/use-site-content';
 import { HOMEPAGE_CATEGORIES, filterProductsByCategory } from '@/lib/homepage';
 import { rememberPreferredCategory } from '@/lib/product-preferences';
 import type { Product } from '@/lib/product-schema';
 
 export default function ProductsPage() {
   const { products, isLoadingProducts, productsError } = useProducts();
+  const { siteContent } = useSiteContent();
   const orderedProducts = useProductOrdering(products);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('Semua');
@@ -107,7 +109,19 @@ export default function ProductsPage() {
         onSelectImage={setCurrentImageIndex}
       />
 
-      <SiteFooter />
+      <SiteFooter
+        badge={siteContent.footerBadge}
+        title={siteContent.footerTitle}
+        description={siteContent.footerDescription}
+        phone={siteContent.contactPhone}
+        email={siteContent.contactEmail}
+        addressLine1={siteContent.contactAddressLine1}
+        addressLine2={siteContent.contactAddressLine2}
+        instagramUrl={siteContent.instagramUrl}
+        instagramLabel={siteContent.instagramLabel}
+        facebookUrl={siteContent.facebookUrl}
+        facebookLabel={siteContent.facebookLabel}
+      />
       <WhatsAppFloatingButton />
     </div>
   );
