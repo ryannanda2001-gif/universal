@@ -26,14 +26,6 @@ export function ProductsSection({
   onViewProduct,
 }: ProductsSectionProps) {
   const scrollerRef = useRef<HTMLDivElement | null>(null);
-  const productColumns = filteredProducts.reduce<Product[][]>((columns, product, index) => {
-    const columnIndex = Math.floor(index / 2);
-    if (!columns[columnIndex]) {
-      columns[columnIndex] = [];
-    }
-    columns[columnIndex].push(product);
-    return columns;
-  }, []);
 
   const scrollProducts = (direction: 'left' | 'right') => {
     if (!scrollerRef.current) return;
@@ -129,18 +121,16 @@ export function ProductsSection({
         ) : (
           <div
             ref={scrollerRef}
-            className="flex items-start gap-5 overflow-x-auto pb-4 scrollbar-hide"
+            className="flex snap-x snap-mandatory items-stretch gap-5 overflow-x-auto pb-4 scrollbar-hide"
           >
-            {productColumns.map((column, index) => (
+            {filteredProducts.map((product, index) => (
               <div
-                key={`column-${column[0]?.id ?? index}`}
-                className={`flex w-[220px] shrink-0 flex-col gap-5 md:w-[280px] ${
+                key={product.id}
+                className={`w-[220px] shrink-0 snap-start sm:w-[240px] md:w-[280px] ${
                   index % 4 === 1 ? 'animation-delay-200' : index % 4 === 2 ? 'animation-delay-400' : ''
                 }`}
               >
-                {column.map((product) => (
-                  <ProductCard key={product.id} product={product} onViewDetail={onViewProduct} />
-                ))}
+                <ProductCard product={product} onViewDetail={onViewProduct} />
               </div>
             ))}
           </div>

@@ -84,11 +84,11 @@ export default function ProductsPage() {
           ) : filteredProducts.length === 0 ? (
             <div className="text-center py-16 text-gray-600 text-lg">Belum ada produk yang cocok di kategori ini.</div>
           ) : (
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            <div className="grid grid-cols-2 items-stretch gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
               {filteredProducts.map((product, index) => (
                 <div
                   key={product.id}
-                  className={index % 4 === 1 ? 'animation-delay-200' : index % 4 === 2 ? 'animation-delay-400' : ''}
+                  className={`${index % 4 === 1 ? 'animation-delay-200' : index % 4 === 2 ? 'animation-delay-400' : ''} h-full`}
                 >
                   <ProductCard product={product} onViewDetail={handleViewProduct} />
                 </div>

@@ -31,17 +31,17 @@ export function ProductDetailModal({
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 overflow-y-auto" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full my-8 max-h-[95vh] overflow-hidden flex flex-col md:flex-row" onClick={(e) => e.stopPropagation()}>
+      <div className="relative my-8 flex max-h-[95vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl md:flex-row" onClick={(e) => e.stopPropagation()}>
         <button onClick={onClose} className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 bg-white rounded-full p-2 hover:bg-gray-100 z-10" type="button">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
 
-        <div className="w-full md:w-1/2 bg-gray-100 flex flex-col">
-          <div className="relative flex-1 min-h-80 md:min-h-96 overflow-hidden">
+        <div className="flex w-full flex-col bg-gray-100 md:w-[56%]">
+          <div className="relative flex-1 min-h-[340px] overflow-hidden bg-slate-100 md:min-h-[620px]">
             {product.images[currentImageIndex] ? (
-              <img src={product.images[currentImageIndex]} alt={product.name} className="w-full h-full object-cover" />
+              <img src={product.images[currentImageIndex]} alt={product.name} className="h-full w-full object-contain" />
             ) : (
               <div className="w-full h-full bg-gray-300 flex items-center justify-center"><span className="text-gray-500">Tidak ada gambar</span></div>
             )}
@@ -88,7 +88,7 @@ export function ProductDetailModal({
           ) : null}
         </div>
 
-        <div className="w-full md:w-1/2 p-6 md:p-8 overflow-y-auto space-y-4 flex flex-col">
+        <div className="flex w-full flex-col space-y-4 overflow-y-auto p-6 md:w-[44%] md:p-8">
           <div className="flex flex-wrap gap-2">
             <span className="inline-block rounded-full bg-blue-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-blue-700">
               {product.category}

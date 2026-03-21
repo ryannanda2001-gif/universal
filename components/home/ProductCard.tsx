@@ -17,13 +17,13 @@ export function ProductCard({ product, onViewDetail }: ProductCardProps) {
   const stockStatus = getStockStatus(product.stock);
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-[28px] border border-slate-200/80 bg-white shadow-[0_18px_45px_-30px_rgba(15,23,42,0.45)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_60px_-28px_rgba(37,99,235,0.45)] animate-fade-in-up">
+    <article className="group flex h-full min-h-[420px] flex-col overflow-hidden rounded-[28px] border border-slate-200/80 bg-white shadow-[0_18px_45px_-30px_rgba(15,23,42,0.45)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_60px_-28px_rgba(37,99,235,0.45)] animate-fade-in-up">
       <button type="button" onClick={() => onViewDetail(product)} className="flex h-full flex-col text-left">
-        <div className="relative h-36 w-full shrink-0 overflow-hidden bg-slate-100 sm:h-44">
+        <div className="relative aspect-square w-full shrink-0 overflow-hidden bg-slate-100">
           <img
             src={product.images[0] || '/store-1.jpg'}
             alt={product.name}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+            className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-105"
             onError={(e) => {
               e.currentTarget.src = '/store-1.jpg';
             }}
@@ -48,11 +48,11 @@ export function ProductCard({ product, onViewDetail }: ProductCardProps) {
         </div>
 
         <div className="flex flex-1 flex-col p-3.5 sm:p-4">
-          <h3 className="mb-2 line-clamp-2 text-[13px] font-bold leading-5 text-slate-900 transition-colors group-hover:text-blue-700 sm:text-[15px]">
+          <h3 className="mb-2 min-h-[2.5rem] line-clamp-2 text-[13px] font-bold leading-5 text-slate-900 transition-colors group-hover:text-blue-700 sm:min-h-[3rem] sm:text-[15px]">
             {product.name}
           </h3>
 
-          <div className="mb-2.5">
+          <div className="mb-2.5 min-h-[3.5rem]">
             {product.discount && product.discount > 0 ? (
               <div className="space-y-1.5">
                 <p className="text-xs text-slate-400 line-through">
@@ -69,7 +69,7 @@ export function ProductCard({ product, onViewDetail }: ProductCardProps) {
             )}
           </div>
 
-          <p className="mb-3 line-clamp-2 text-[12px] leading-5 text-slate-500 sm:text-sm">
+          <p className="mb-3 min-h-[3.75rem] line-clamp-3 text-[12px] leading-5 text-slate-500 sm:text-sm">
             {product.description}
           </p>
 
