@@ -11,6 +11,7 @@ import { ServicesSection } from '@/components/home/ServicesSection';
 import { SiteFooter } from '@/components/home/SiteFooter';
 import { StatsSection } from '@/components/home/StatsSection';
 import { WhatsAppFloatingButton } from '@/components/home/WhatsAppFloatingButton';
+import { RevealOnScroll } from '@/components/shared/RevealOnScroll';
 import { useProductOrdering } from '@/hooks/use-product-ordering';
 import { useProducts } from '@/hooks/use-products';
 import { useSiteContent } from '@/hooks/use-site-content';
@@ -72,21 +73,23 @@ export default function Home() {
 
       <HeroBanner imageSrc={siteContent.heroImage} />
 
-      <ProductsSection
-        products={products}
-        filteredProducts={filteredProducts}
-        isLoadingProducts={isLoadingProducts}
-        productsError={productsError}
-        selectedCategory={selectedCategory}
-        badge={siteContent.productsBadge}
-        title={siteContent.productsTitle}
-        description={siteContent.productsDescription}
-        onSelectCategory={(category) => {
-          rememberPreferredCategory(category);
-          setSelectedCategory(category);
-        }}
-        onViewProduct={handleViewProduct}
-      />
+      <RevealOnScroll>
+        <ProductsSection
+          products={products}
+          filteredProducts={filteredProducts}
+          isLoadingProducts={isLoadingProducts}
+          productsError={productsError}
+          selectedCategory={selectedCategory}
+          badge={siteContent.productsBadge}
+          title={siteContent.productsTitle}
+          description={siteContent.productsDescription}
+          onSelectCategory={(category) => {
+            rememberPreferredCategory(category);
+            setSelectedCategory(category);
+          }}
+          onViewProduct={handleViewProduct}
+        />
+      </RevealOnScroll>
 
       <ProductDetailModal
         product={selectedProduct}
@@ -97,32 +100,40 @@ export default function Home() {
         onSelectImage={setCurrentImageIndex}
       />
 
-      <AboutSection
-        badge={siteContent.aboutBadge}
-        title={siteContent.aboutTitle}
-        paragraphOne={siteContent.aboutParagraphOne}
-        paragraphTwo={siteContent.aboutParagraphTwo}
-        imageSrc={siteContent.aboutImage}
-      />
-      <StatsSection />
-      <ServicesSection
-        badge={siteContent.servicesBadge}
-        title={siteContent.servicesTitle}
-        services={services}
-      />
-      <SiteFooter
-        badge={siteContent.footerBadge}
-        title={siteContent.footerTitle}
-        description={siteContent.footerDescription}
-        phone={siteContent.contactPhone}
-        email={siteContent.contactEmail}
-        addressLine1={siteContent.contactAddressLine1}
-        addressLine2={siteContent.contactAddressLine2}
-        instagramUrl={siteContent.instagramUrl}
-        instagramLabel={siteContent.instagramLabel}
-        facebookUrl={siteContent.facebookUrl}
-        facebookLabel={siteContent.facebookLabel}
-      />
+      <RevealOnScroll>
+        <AboutSection
+          badge={siteContent.aboutBadge}
+          title={siteContent.aboutTitle}
+          paragraphOne={siteContent.aboutParagraphOne}
+          paragraphTwo={siteContent.aboutParagraphTwo}
+          imageSrc={siteContent.aboutImage}
+        />
+      </RevealOnScroll>
+      <RevealOnScroll delayClassName="delay-75">
+        <StatsSection />
+      </RevealOnScroll>
+      <RevealOnScroll delayClassName="delay-100">
+        <ServicesSection
+          badge={siteContent.servicesBadge}
+          title={siteContent.servicesTitle}
+          services={services}
+        />
+      </RevealOnScroll>
+      <RevealOnScroll delayClassName="delay-150">
+        <SiteFooter
+          badge={siteContent.footerBadge}
+          title={siteContent.footerTitle}
+          description={siteContent.footerDescription}
+          phone={siteContent.contactPhone}
+          email={siteContent.contactEmail}
+          addressLine1={siteContent.contactAddressLine1}
+          addressLine2={siteContent.contactAddressLine2}
+          instagramUrl={siteContent.instagramUrl}
+          instagramLabel={siteContent.instagramLabel}
+          facebookUrl={siteContent.facebookUrl}
+          facebookLabel={siteContent.facebookLabel}
+        />
+      </RevealOnScroll>
       <WhatsAppFloatingButton />
     </div>
   );

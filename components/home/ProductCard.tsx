@@ -19,11 +19,11 @@ export function ProductCard({ product, onViewDetail }: ProductCardProps) {
   return (
     <article className="group flex h-full min-h-[355px] flex-col overflow-hidden rounded-[24px] border border-slate-200/80 bg-white shadow-[0_18px_45px_-34px_rgba(15,23,42,0.4)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_60px_-36px_rgba(37,99,235,0.4)] animate-fade-in-up">
       <button type="button" onClick={() => onViewDetail(product)} className="flex h-full flex-col text-left">
-        <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden bg-white">
+        <div className="relative aspect-square w-full shrink-0 overflow-hidden bg-slate-100">
           <img
             src={product.images[0] || '/store-1.jpg'}
             alt={product.name}
-            className="h-full w-full object-contain object-center"
+            className="h-full w-full object-cover object-center"
             onError={(e) => {
               e.currentTarget.src = '/store-1.jpg';
             }}

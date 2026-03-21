@@ -103,23 +103,49 @@ export function SiteFooter({
   ];
 
   return (
-    <footer className="bg-linear-to-b from-white via-slate-50 to-blue-50 px-4 py-12 text-slate-700 md:py-14">
+    <footer className="relative overflow-hidden bg-linear-to-b from-sky-50 via-white to-blue-100/70 px-4 py-12 text-slate-700 md:py-16">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-linear-to-r from-cyan-200/35 via-blue-200/25 to-sky-100/10 blur-3xl" />
       <div className="mx-auto max-w-7xl">
-        <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_24px_70px_-44px_rgba(15,23,42,0.3)] md:p-8">
-          <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
+        <div className="relative rounded-[32px] border border-white/70 bg-white/90 p-6 shadow-[0_30px_90px_-44px_rgba(37,99,235,0.28)] backdrop-blur md:p-8">
+          <div className="mb-8 grid gap-6 rounded-[28px] bg-linear-to-r from-blue-600 via-cyan-500 to-sky-400 px-6 py-6 text-white lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
+            <div>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.28em] text-cyan-100">{badge}</p>
+              <h3 className="font-brand text-2xl font-bold md:text-3xl">{title}</h3>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-blue-50">{description}</p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {socialLinks.map((item) => (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  target={item.href.startsWith('http') ? '_blank' : undefined}
+                  rel={item.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                  className="flex items-center gap-3 rounded-2xl bg-white/18 px-4 py-3 transition hover:bg-white/25"
+                >
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-white">
+                    {item.icon}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-sm font-semibold text-white">{item.label}</span>
+                    <span className="block truncate text-sm text-blue-50">{item.value}</span>
+                  </span>
+                </a>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid gap-8 lg:grid-cols-[1fr_1fr]">
             <div className="space-y-5">
               <div>
-                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.28em] text-cyan-600">{badge}</p>
-                <h3 className="font-brand text-2xl font-bold text-slate-900 md:text-3xl">{title}</h3>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.28em] text-cyan-600">Kontak Utama</p>
+                <h4 className="font-brand text-2xl font-bold text-slate-900 md:text-[2rem]">Hubungi toko dengan cepat dan jelas</h4>
               </div>
-
-              <p className="max-w-xl text-sm leading-7 text-slate-600">{description}</p>
 
               <div className="space-y-3">
                 {contactItems.map((item) => {
                   const content = (
-                    <div className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                      <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-cyan-100 text-cyan-700">
+                    <div className="flex items-start gap-3 rounded-2xl border border-blue-100 bg-linear-to-r from-white to-blue-50 px-4 py-4">
+                      <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-cyan-100 to-blue-100 text-cyan-700">
                         {item.icon}
                       </span>
                       <span className="min-w-0">
@@ -152,35 +178,26 @@ export function SiteFooter({
               </div>
             </div>
 
-            <div className="space-y-5 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+            <div className="space-y-5 rounded-[28px] border border-blue-100 bg-linear-to-br from-white via-blue-50/70 to-cyan-50 p-5">
               <div>
-                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-cyan-600">Sosial Media</p>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-cyan-600">Info Toko</p>
                 <p className="text-sm leading-7 text-slate-500">
-                  Ikuti akun kami untuk update produk, promo, dan informasi service terbaru.
+                  Kami siap membantu kebutuhan rakitan, service, upgrade, dan konsultasi perangkat sesuai kebutuhan Anda.
                 </p>
               </div>
 
-              <div className="space-y-3">
-                {socialLinks.map((item) => (
-                  <a
-                    key={item.label}
-                    href={item.href}
-                    target={item.href.startsWith('http') ? '_blank' : undefined}
-                    rel={item.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                    className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 transition hover:border-cyan-300 hover:bg-cyan-50/40"
-                  >
-                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-cyan-100 text-cyan-700">
-                      {item.icon}
-                    </span>
-                    <span className="min-w-0">
-                      <span className="block text-sm font-semibold text-slate-900">{item.label}</span>
-                      <span className="block truncate text-sm text-slate-500">{item.value}</span>
-                    </span>
-                  </a>
-                ))}
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-2xl border border-white/80 bg-white px-4 py-4 shadow-sm">
+                  <span className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-600">Respon Cepat</span>
+                  <p className="mt-2 text-sm leading-7 text-slate-600">Tanya stok dan harga lebih cepat lewat WhatsApp atau media sosial toko.</p>
+                </div>
+                <div className="rounded-2xl border border-white/80 bg-white px-4 py-4 shadow-sm">
+                  <span className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-600">Kunjungi Toko</span>
+                  <p className="mt-2 text-sm leading-7 text-slate-600">Lokasi dan kebutuhan service bisa dikonfirmasi dulu sebelum datang agar lebih efisien.</p>
+                </div>
               </div>
 
-              <div className="rounded-2xl border border-cyan-100 bg-cyan-50 px-4 py-4 text-sm leading-7 text-slate-700">
+              <div className="rounded-2xl border border-cyan-100 bg-linear-to-r from-cyan-50 to-blue-50 px-4 py-4 text-sm leading-7 text-slate-700">
                 Jam operasional dan titik lokasi bisa Anda konfirmasi lebih cepat melalui WhatsApp sebelum datang ke toko.
               </div>
             </div>
