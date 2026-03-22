@@ -39,13 +39,13 @@ export function ProductDetailModal({
         </button>
 
         <div className="flex w-full flex-col bg-white md:w-[56%]">
-          <div className="relative flex-1 min-h-[340px] overflow-hidden bg-white p-4 md:min-h-[620px] md:p-6">
+          <div className="relative flex min-h-[340px] flex-1 items-center justify-center overflow-hidden bg-white p-4 md:min-h-[620px] md:p-6">
             {product.images[currentImageIndex] ? (
-              <div className="mx-auto aspect-square h-full max-h-[680px] w-full max-w-[680px] rounded-[28px] bg-slate-100 p-2">
+              <div className="mx-auto flex max-h-[68vh] w-full max-w-[680px] items-center justify-center rounded-[28px] bg-slate-100 p-2 md:max-h-[680px]">
                 <img
                   src={product.images[currentImageIndex]}
                   alt={product.name}
-                  className="h-full w-full object-contain object-center"
+                  className="max-h-[calc(68vh-16px)] w-full object-contain object-center md:max-h-[664px]"
                   onError={(event) => {
                     event.currentTarget.src = '/store-1.jpg';
                   }}
