@@ -33,11 +33,7 @@ export function ProductCard({ product, onViewDetail }: ProductCardProps) {
             <span className={`${stockStatus.color} rounded-full px-3 py-1 text-[11px] font-bold text-white shadow-md`}>
               {stockStatus.text}
             </span>
-            <span className="rounded-full bg-white/90 px-3 py-1 text-[11px] font-semibold text-slate-700 shadow-sm">
-              {product.category}
-            </span>
           </div>
-
         </div>
 
         <div className="flex flex-1 flex-col p-3 sm:p-3.5">

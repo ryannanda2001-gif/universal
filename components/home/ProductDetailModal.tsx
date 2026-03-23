@@ -39,13 +39,13 @@ export function ProductDetailModal({
         </button>
 
         <div className="flex w-full flex-col bg-white md:w-[56%]">
-          <div className="relative flex min-h-[340px] flex-1 items-center justify-center bg-white p-4 md:min-h-[620px] md:p-6">
+          <div className="relative flex min-h-[340px] flex-1 items-center justify-center overflow-hidden bg-white p-4 md:min-h-[620px] md:p-6">
             {product.images[currentImageIndex] ? (
-              <div className="mx-auto w-full max-w-[680px] bg-slate-100 rounded-[28px] p-4">
-               <img
-                 src={product.images[currentImageIndex]}
+              <div className="mx-auto flex h-[320px] w-full max-w-[680px] items-center justify-center overflow-hidden rounded-[28px] bg-slate-100 p-4 md:h-[min(62vh,620px)]">
+                <img
+                  src={product.images[currentImageIndex]}
                   alt={product.name}
-                   className="w-full h-auto object-contain"
+                  className="max-h-full max-w-full object-contain"
                 />
               </div>
             ) : (
@@ -94,7 +94,7 @@ export function ProductDetailModal({
           ) : null}
         </div>
 
-        <div className="flex w-full flex-col space-y-4 overflow-y-auto p-6 md:w-[44%] md:p-8">
+        <div className="flex w-full min-h-0 flex-col space-y-4 overflow-y-auto p-6 md:w-[44%] md:p-8">
           <div className="flex flex-wrap gap-2">
             <span className="inline-block rounded-full bg-blue-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-blue-700">
               {product.category}
@@ -140,9 +140,11 @@ export function ProductDetailModal({
             </div>
           </div>
 
-          <div className="flex min-h-[230px] flex-1 flex-col rounded-lg bg-gray-50 p-4 md:min-h-[320px]">
+          <div className="flex min-h-[260px] flex-1 flex-col rounded-lg bg-gray-50 p-4 md:min-h-[360px]">
             <h3 className="mb-3 text-sm font-bold uppercase tracking-wide text-gray-800">Deskripsi Produk</h3>
-            <p className="flex-1 whitespace-pre-wrap text-sm leading-relaxed text-gray-700 md:text-[15px]">{product.description}</p>
+            <p className="flex-1 overflow-y-auto whitespace-pre-wrap pr-1 text-sm leading-relaxed text-gray-700 md:text-[15px]">
+              {product.description}
+            </p>
           </div>
 
           <div className="grid grid-cols-2 gap-3 pt-4">

@@ -60,8 +60,8 @@ export function StatsSection() {
   ];
 
   return (
-    <section className="bg-white px-4 py-14 md:py-20">
-      <div className="mx-auto max-w-7xl">
+    <section className="bg-white px-5 py-16 sm:px-6 lg:px-8 md:py-20">
+      <div className="mx-auto max-w-[1180px]">
         <div className="mb-12 text-center">
           <p className="mb-3 text-sm font-semibold uppercase tracking-[0.28em] text-cyan-600">Achievement</p>
           <h2 className="mb-3 text-3xl font-bold text-slate-900 md:text-4xl">Pencapaian Kami</h2>

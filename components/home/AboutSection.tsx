@@ -14,8 +14,8 @@ export function AboutSection({
   imageSrc,
 }: AboutSectionProps) {
   return (
-    <section id="tentang" className="bg-linear-to-b from-slate-50 to-blue-50 px-4 py-14 md:py-20">
-      <div className="mx-auto max-w-6xl">
+    <section id="tentang" className="bg-linear-to-b from-slate-50 to-blue-50 px-5 py-16 sm:px-6 lg:px-8 md:py-20">
+      <div className="mx-auto max-w-[1180px]">
         <div className="grid items-center gap-8 rounded-[32px] border border-white/60 bg-white/80 p-6 shadow-[0_24px_80px_-44px_rgba(15,23,42,0.35)] backdrop-blur md:grid-cols-[1.05fr_1fr] md:gap-12 md:p-10">
           <div className="animate-fade-in-up">
             <img
@@ -39,17 +39,6 @@ export function AboutSection({
             <p className="mb-6 text-base leading-8 text-slate-600">
               {paragraphTwo}
             </p>
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-2xl bg-slate-100 p-4">
-                <p className="text-sm font-semibold text-slate-900">Lokasi Strategis</p>
-                <p className="mt-1 text-sm leading-6 text-slate-600">Mudah dijangkau pelanggan dari berbagai area sekitar kota.</p>
-              </div>
-              <div className="rounded-2xl bg-slate-100 p-4">
-                <p className="text-sm font-semibold text-slate-900">Konsultasi Ramah</p>
-                <p className="mt-1 text-sm leading-6 text-slate-600">Kami bantu pilih produk berdasarkan kebutuhan dan budget.</p>
-              </div>
-            </div>
           </div>
         </div>
       </div>

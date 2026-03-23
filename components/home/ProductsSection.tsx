@@ -43,8 +43,8 @@ export function ProductsSection({
   };
 
   return (
-    <section id="beli" className="bg-linear-to-b from-white via-slate-50 to-white px-4 py-14 md:py-20">
-      <div className="mx-auto max-w-7xl">
+    <section id="beli" className="bg-linear-to-b from-white via-slate-50 to-white px-5 py-16 sm:px-6 lg:px-8 md:py-20">
+      <div className="mx-auto max-w-[1180px]">
         <div className="mb-10 flex flex-col gap-6 rounded-[32px] border border-slate-200/70 bg-white/90 p-6 shadow-[0_24px_80px_-48px_rgba(15,23,42,0.35)] backdrop-blur md:p-8">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl animate-fade-in-up">
