@@ -31,7 +31,7 @@ export function ProductDetailModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 p-4" onClick={onClose}>
-      <div className="relative my-8 flex w-full max-w-6xl flex-col rounded-2xl bg-white shadow-2xl md:max-h-[92vh] md:flex-row" onClick={(event) => event.stopPropagation()}>
+      <div className="relative my-8 flex w-full max-w-6xl flex-col rounded-2xl bg-white shadow-2xl md:flex-row" onClick={(event) => event.stopPropagation()}>
         <button onClick={onClose} className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 bg-white rounded-full p-2 hover:bg-gray-100 z-10" type="button">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -41,11 +41,11 @@ export function ProductDetailModal({
         <div className="flex w-full flex-col bg-white md:w-[56%]">
           <div className="relative flex min-h-[340px] flex-1 items-center justify-center overflow-hidden bg-white p-4 md:min-h-[620px] md:p-6">
             {product.images[currentImageIndex] ? (
-              <div className="mx-auto flex h-[320px] w-full max-w-[680px] items-center justify-center overflow-hidden rounded-[28px] bg-slate-100 p-4 md:h-[min(62vh,620px)]">
+              <div className="flex w-full items-center justify-center rounded-[28px] bg-slate-100 p-4">
                 <img
                   src={product.images[currentImageIndex]}
                   alt={product.name}
-                  className="max-h-full max-w-full object-contain"
+                  className="w-full h-auto object-contain"
                 />
               </div>
             ) : (
