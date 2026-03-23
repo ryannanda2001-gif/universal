@@ -140,9 +140,9 @@ export function ProductDetailModal({
             </div>
           </div>
 
-          <div className="flex min-h-[260px] flex-1 flex-col rounded-lg bg-gray-50 p-4 md:min-h-[360px]">
+          <div className="flex flex-col rounded-lg bg-gray-50 p-4">
             <h3 className="mb-3 text-sm font-bold uppercase tracking-wide text-gray-800">Deskripsi Produk</h3>
-            <p className="flex-1 overflow-y-auto whitespace-pre-wrap pr-1 text-sm leading-relaxed text-gray-700 md:text-[15px]">
+            <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-700 md:text-[15px]">
               {product.description}
             </p>
           </div>
