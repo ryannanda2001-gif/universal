@@ -41,15 +41,12 @@ export function ProductDetailModal({
         <div className="flex w-full flex-col bg-white md:w-[56%]">
           <div className="relative flex min-h-[340px] flex-1 items-center justify-center overflow-hidden bg-white p-4 md:min-h-[620px] md:p-6">
             {product.images[currentImageIndex] ? (
-              <div className="mx-auto flex max-h-[68vh] w-full max-w-[680px] items-center justify-center rounded-[28px] bg-slate-100 p-2 md:max-h-[680px]">
+              <div className="mx-auto w-full max-w-[680px] aspect-square flex items-center justify-center rounded-[28px] bg-slate-100 p-2">
                 <img
-                  src={product.images[currentImageIndex]}
-                  alt={product.name}
-                  className="max-h-[calc(68vh-16px)] w-full object-contain object-center md:max-h-[664px]"
-                  onError={(event) => {
-                    event.currentTarget.src = '/store-1.jpg';
-                  }}
-                />
+  src={product.images[currentImageIndex]}
+  alt={product.name}
+  className="w-full h-full object-contain"
+/>
               </div>
             ) : (
               <div className="w-full h-full bg-gray-300 flex items-center justify-center"><span className="text-gray-500">Tidak ada gambar</span></div>
