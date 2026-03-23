@@ -11,6 +11,8 @@ type RevealOnScrollProps = {
 export function RevealOnScroll({ children, className = '', delayClassName = '' }: RevealOnScrollProps) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [animationKey, setAnimationKey] = useState(0);
+  const wasVisibleRef = useRef(false);
 
   useEffect(() => {
     const node = ref.current;
@@ -20,7 +22,14 @@ export function RevealOnScroll({ children, className = '', delayClassName = '' }
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsVisible(true);
-          observer.disconnect();
+
+          if (!wasVisibleRef.current) {
+            setAnimationKey((prev) => prev + 1);
+            wasVisibleRef.current = true;
+          }
+        } else {
+          setIsVisible(false);
+          wasVisibleRef.current = false;
         }
       },
       {
@@ -41,7 +50,9 @@ export function RevealOnScroll({ children, className = '', delayClassName = '' }
         isVisible ? `translate-y-0 scale-100 blur-0 opacity-100 ${delayClassName}` : 'translate-y-12 scale-[0.96] blur-[6px] opacity-0'
       }`}
     >
-      {children}
+      <div key={animationKey}>
+        {children}
+      </div>
     </div>
   );
 }

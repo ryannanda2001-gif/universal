@@ -55,7 +55,9 @@ export default function Home() {
         onCloseMenu={() => setIsMenuOpen(false)}
       />
 
-      <HeroBanner imageSrc={siteContent.heroImage} />
+      <RevealOnScroll>
+        <HeroBanner imageSrc={siteContent.heroImage} />
+      </RevealOnScroll>
 
       <RevealOnScroll>
         <ProductsSection
