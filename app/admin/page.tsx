@@ -3,7 +3,7 @@
 import { LandingPageSettings } from '@/components/admin/LandingPageSettings';
 import { PRODUCT_CATEGORIES, PRODUCT_CONDITIONS } from '@/lib/homepage';
 import { normalizeStoredProducts, type Product } from '@/lib/product-schema';
-import { DEFAULT_SITE_CONTENT, type SiteContent } from '@/lib/site-content';
+import { DEFAULT_SITE_CONTENT, MAX_SERVICE_IMAGES, type SiteContent } from '@/lib/site-content';
 import { createClient as createSupabaseBrowserClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -12,6 +12,7 @@ import { useEffect, useRef, useState } from 'react';
 const MAX_IMAGES = 5;
 
 type AdminMenu = 'landing' | 'products';
+type SiteContentField = Exclude<keyof SiteContent, 'services'>;
 
 const readFileAsDataUrl = (file: File) =>
   new Promise<string>((resolve, reject) => {
@@ -282,14 +283,13 @@ export default function AdminPage() {
     event.target.value = '';
   };
 
-  const handleSiteContentChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = event.target;
-    setSiteContent((prev) => ({ ...prev, [name]: value }));
+  const handleSiteContentChange = (field: SiteContentField, value: string) => {
+    setSiteContent((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleLandingImageUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
-    field: 'heroImage' | 'aboutImage' | 'serviceOneImage' | 'serviceTwoImage' | 'serviceThreeImage'
+    field: 'heroImage' | 'aboutImage'
   ) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -303,6 +303,71 @@ export default function AdminPage() {
     } finally {
       event.target.value = '';
     }
+  };
+
+  const handleServiceContentChange = (
+    serviceIndex: number,
+    field: 'title' | 'description',
+    value: string
+  ) => {
+    setSiteContent((prev) => ({
+      ...prev,
+      services: prev.services.map((service, currentIndex) =>
+        currentIndex === serviceIndex ? { ...service, [field]: value } : service
+      ),
+    }));
+  };
+
+  const handleServiceImageUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+    serviceIndex: number,
+    imageIndex: number
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const dataUrl = await readFileAsDataUrl(file);
+      setSiteContent((prev) => ({
+        ...prev,
+        services: prev.services.map((service, currentIndex) => {
+          if (currentIndex !== serviceIndex) {
+            return service;
+          }
+
+          const nextImages = [...service.images];
+          nextImages[imageIndex] = dataUrl;
+
+          return {
+            ...service,
+            images: nextImages.filter(Boolean).slice(0, MAX_SERVICE_IMAGES),
+          };
+        }),
+      }));
+    } catch (error) {
+      console.error(error);
+      alert('Gagal membaca gambar layanan. Silakan coba lagi.');
+    } finally {
+      event.target.value = '';
+    }
+  };
+
+  const handleRemoveServiceImage = (serviceIndex: number, imageIndex: number) => {
+    setSiteContent((prev) => ({
+      ...prev,
+      services: prev.services.map((service, currentIndex) => {
+        if (currentIndex !== serviceIndex) {
+          return service;
+        }
+
+        const nextImages = service.images.filter((_, currentImageIndex) => currentImageIndex !== imageIndex);
+
+        return {
+          ...service,
+          images: nextImages.length > 0 ? nextImages : [DEFAULT_SITE_CONTENT.services[serviceIndex]?.images[0] || '/store-photo.jpg'],
+        };
+      }),
+    }));
   };
 
   const handleRemoveImage = (index: number) => {
@@ -513,8 +578,11 @@ export default function AdminPage() {
                 isLoading={isLoadingSiteContent}
                 isSaving={isSavingSiteContent}
                 error={siteContentError}
-                onChange={handleSiteContentChange}
+                onFieldChange={handleSiteContentChange}
                 onImageUpload={handleLandingImageUpload}
+                onServiceChange={handleServiceContentChange}
+                onServiceImageUpload={handleServiceImageUpload}
+                onServiceImageRemove={handleRemoveServiceImage}
                 onSave={saveSiteContent}
               />
             ) : (

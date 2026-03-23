@@ -119,8 +119,8 @@ export default function ProductsPage() {
         addressLine2={siteContent.contactAddressLine2}
         instagramUrl={siteContent.instagramUrl}
         instagramLabel={siteContent.instagramLabel}
-        facebookUrl={siteContent.facebookUrl}
-        facebookLabel={siteContent.facebookLabel}
+        tiktokUrl={siteContent.tiktokUrl}
+        tiktokLabel={siteContent.tiktokLabel}
         mapsEmbedUrl={siteContent.mapsEmbedUrl}
         mapsLabel={siteContent.mapsLabel}
       />

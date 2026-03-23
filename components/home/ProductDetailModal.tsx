@@ -30,8 +30,8 @@ export function ProductDetailModal({
   const stockStatus = getStockStatus(product.stock);
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 overflow-y-auto" onClick={onClose}>
-      <div className="relative my-8 flex w-full max-w-6xl flex-col rounded-2xl bg-white shadow-2xl md:flex-row">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 p-4" onClick={onClose}>
+      <div className="relative my-8 flex w-full max-w-6xl flex-col rounded-2xl bg-white shadow-2xl md:max-h-[92vh] md:flex-row" onClick={(event) => event.stopPropagation()}>
         <button onClick={onClose} className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 bg-white rounded-full p-2 hover:bg-gray-100 z-10" type="button">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -106,43 +106,43 @@ export function ProductDetailModal({
 
           <h2 className="text-2xl md:text-3xl font-bold text-gray-800 leading-tight">{product.name}</h2>
 
-          <div className="bg-linear-to-br from-blue-50 to-cyan-50 rounded-xl p-4 border border-blue-100">
+          <div className="rounded-xl border border-blue-100 bg-linear-to-br from-blue-50 to-cyan-50 p-3.5">
             {product.discount && product.discount > 0 ? (
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <div className="flex justify-between items-center">
-                  <p className="text-gray-600 text-sm font-semibold">Harga Normal:</p>
-                  <p className="text-base line-through text-gray-500 font-semibold">{formatPrice(extractNumericPrice(product.price))}</p>
+                  <p className="text-xs font-semibold text-gray-600">Harga Normal:</p>
+                  <p className="text-sm font-semibold text-gray-500 line-through">{formatPrice(extractNumericPrice(product.price))}</p>
                 </div>
                 <div className="flex justify-between items-center">
-                  <p className="text-gray-800 font-bold">Harga Diskon:</p>
-                  <p className="text-2xl font-bold text-red-600">{formatPrice(extractNumericPrice(calculateDiscountedPrice(product.price, product.discount)))}</p>
+                  <p className="text-sm font-bold text-gray-800">Harga Diskon:</p>
+                  <p className="text-xl font-bold text-red-600">{formatPrice(extractNumericPrice(calculateDiscountedPrice(product.price, product.discount)))}</p>
                 </div>
-                <div className="pt-2 border-t border-blue-200">
+                <div className="border-t border-blue-200 pt-1.5">
                   <p className="text-sm text-green-700 font-semibold">Hemat: {formatPrice(product.discount)}</p>
                 </div>
               </div>
             ) : (
               <div>
-                <p className="text-gray-700 text-sm font-semibold mb-1">Harga:</p>
-                <p className="text-2xl font-bold text-blue-700">{formatPrice(extractNumericPrice(product.price))}</p>
+                <p className="mb-1 text-xs font-semibold text-gray-700">Harga:</p>
+                <p className="text-xl font-bold text-blue-700">{formatPrice(extractNumericPrice(product.price))}</p>
               </div>
             )}
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-lg bg-slate-50 p-4">
+            <div className="rounded-lg bg-slate-50 p-3">
               <h3 className="mb-1 text-xs font-bold uppercase tracking-wide text-slate-500">Stok</h3>
               <p className="text-sm font-semibold text-slate-800">Tersedia {product.stock} pcs</p>
             </div>
-            <div className="rounded-lg bg-slate-50 p-4">
+            <div className="rounded-lg bg-slate-50 p-3">
               <h3 className="mb-1 text-xs font-bold uppercase tracking-wide text-slate-500">Kondisi</h3>
               <p className="text-sm font-semibold text-slate-800">{getConditionLabel(product.condition)}</p>
             </div>
           </div>
 
-          <div className="flex-1 bg-gray-50 rounded-lg p-4">
-            <h3 className="font-bold text-gray-800 text-sm mb-2 uppercase tracking-wide">Deskripsi Produk</h3>
-            <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap max-h-32 overflow-y-auto">{product.description}</p>
+          <div className="flex min-h-[230px] flex-1 flex-col rounded-lg bg-gray-50 p-4 md:min-h-[320px]">
+            <h3 className="mb-3 text-sm font-bold uppercase tracking-wide text-gray-800">Deskripsi Produk</h3>
+            <p className="flex-1 whitespace-pre-wrap text-sm leading-relaxed text-gray-700 md:text-[15px]">{product.description}</p>
           </div>
 
           <div className="grid grid-cols-2 gap-3 pt-4">

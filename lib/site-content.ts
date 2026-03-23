@@ -4,6 +4,14 @@ import { getSupabaseAdmin, isSupabaseConfigured } from '@/lib/supabase-admin';
 
 const SITE_CONTENT_BUCKET = 'products';
 const SITE_CONTENT_PATH = 'config/site-content.json';
+export const MAX_SERVICE_ITEMS = 6;
+export const MAX_SERVICE_IMAGES = 5;
+
+export type ServiceContentItem = {
+  title: string;
+  description: string;
+  images: string[];
+};
 
 export type SiteContent = {
   heroImage: string;
@@ -24,22 +32,53 @@ export type SiteContent = {
   contactAddressLine2: string;
   instagramUrl: string;
   instagramLabel: string;
-  facebookUrl: string;
-  facebookLabel: string;
+  tiktokUrl: string;
+  tiktokLabel: string;
   mapsEmbedUrl: string;
   mapsLabel: string;
   servicesBadge: string;
   servicesTitle: string;
-  serviceOneTitle: string;
-  serviceOneDescription: string;
-  serviceOneImage: string;
-  serviceTwoTitle: string;
-  serviceTwoDescription: string;
-  serviceTwoImage: string;
-  serviceThreeTitle: string;
-  serviceThreeDescription: string;
-  serviceThreeImage: string;
+  services: ServiceContentItem[];
 };
+
+const DEFAULT_SERVICE_ITEMS: ServiceContentItem[] = [
+  {
+    title: 'Perbaikan Laptop',
+    description: 'Perbaikan hardware dan software laptop berbagai merek.',
+    images: ['/store-photo.jpg'],
+  },
+  {
+    title: 'Perbaikan Komputer',
+    description: 'Service komputer desktop untuk rumah dan kantor.',
+    images: ['/store-photo.jpg'],
+  },
+  {
+    title: 'Perbaikan Printer',
+    description: 'Perbaikan dan maintenance printer semua jenis.',
+    images: ['/store-photo.jpg'],
+  },
+  {
+    title: 'Upgrade SSD & RAM',
+    description: 'Upgrade performa perangkat agar lebih cepat untuk kerja, sekolah, dan usaha.',
+    images: ['/store-photo.jpg'],
+  },
+  {
+    title: 'Instalasi Software',
+    description: 'Bantu instal aplikasi penting, driver, dan optimasi sistem agar siap dipakai.',
+    images: ['/store-photo.jpg'],
+  },
+  {
+    title: 'Cleaning & Maintenance',
+    description: 'Pembersihan perangkat, pengecekan suhu, dan perawatan rutin agar tetap awet.',
+    images: ['/store-photo.jpg'],
+  },
+];
+
+export const createDefaultServices = (): ServiceContentItem[] =>
+  DEFAULT_SERVICE_ITEMS.map((service) => ({
+    ...service,
+    images: [...service.images],
+  }));
 
 export const DEFAULT_SITE_CONTENT: SiteContent = {
   heroImage: '/store-1.jpg',
@@ -53,32 +92,106 @@ export const DEFAULT_SITE_CONTENT: SiteContent = {
   aboutImage: '/store-photo.jpg',
   footerBadge: 'Universal Komputer',
   footerTitle: 'Kontak toko lebih jelas, respon lebih cepat, dan tetap terlihat profesional.',
-  footerDescription: 'Untuk tanya stok, service, harga, atau kebutuhan perangkat, Anda bisa langsung hubungi kami lewat WhatsApp, email, atau datang ke alamat toko.',
+  footerDescription: 'Untuk tanya stok, service, harga, atau kebutuhan perangkat, Anda bisa langsung hubungi kami lewat WhatsApp, Instagram, atau TikTok.',
   contactPhone: '0812 8968 9799',
   contactEmail: 'info@universalcomputer.id',
   contactAddressLine1: 'Jl. Ciledug Raya No.3',
   contactAddressLine2: 'Tangerang, Banten',
-  instagramUrl: '#',
+  instagramUrl: 'https://www.instagram.com/universalcomputer',
   instagramLabel: '@universalcomputer',
-  facebookUrl: '#',
-  facebookLabel: 'Universal Komputer',
+  tiktokUrl: 'https://www.tiktok.com/@universalcomputer',
+  tiktokLabel: '@universalcomputer',
   mapsEmbedUrl: 'https://www.google.com/maps?q=Jl.%20Ciledug%20Raya%20No.3%20Tangerang&z=15&output=embed',
   mapsLabel: 'Lokasi Universal Komputer',
   servicesBadge: 'Layanan',
   servicesTitle: 'Layanan Perbaikan Kami',
-  serviceOneTitle: 'Perbaikan Laptop',
-  serviceOneDescription: 'Perbaikan hardware dan software laptop berbagai merek.',
-  serviceOneImage: '/store-photo.jpg',
-  serviceTwoTitle: 'Perbaikan Komputer',
-  serviceTwoDescription: 'Service komputer desktop untuk rumah dan kantor.',
-  serviceTwoImage: '/store-photo.jpg',
-  serviceThreeTitle: 'Perbaikan Printer',
-  serviceThreeDescription: 'Perbaikan dan maintenance printer semua jenis.',
-  serviceThreeImage: '/store-photo.jpg',
+  services: createDefaultServices(),
+};
+
+type LegacySiteContent = Partial<SiteContent> & {
+  facebookUrl?: string;
+  facebookLabel?: string;
+  serviceOneTitle?: string;
+  serviceOneDescription?: string;
+  serviceOneImage?: string;
+  serviceTwoTitle?: string;
+  serviceTwoDescription?: string;
+  serviceTwoImage?: string;
+  serviceThreeTitle?: string;
+  serviceThreeDescription?: string;
+  serviceThreeImage?: string;
+};
+
+const normalizeImageList = (images: unknown, fallbackImages: string[]) => {
+  if (!Array.isArray(images)) {
+    return [...fallbackImages];
+  }
+
+  const cleaned = images
+    .map((image) => (typeof image === "string" ? image.trim() : ""))
+    .filter(Boolean)
+    .slice(0, MAX_SERVICE_IMAGES);
+
+  return cleaned.length > 0 ? cleaned : [...fallbackImages];
+};
+
+const buildLegacyServices = (incoming: LegacySiteContent) => {
+  const legacyServices = [
+    {
+      title: incoming.serviceOneTitle,
+      description: incoming.serviceOneDescription,
+      image: incoming.serviceOneImage,
+    },
+    {
+      title: incoming.serviceTwoTitle,
+      description: incoming.serviceTwoDescription,
+      image: incoming.serviceTwoImage,
+    },
+    {
+      title: incoming.serviceThreeTitle,
+      description: incoming.serviceThreeDescription,
+      image: incoming.serviceThreeImage,
+    },
+  ];
+
+  return createDefaultServices().map((defaultService, index) => {
+    const legacyService = legacyServices[index];
+
+    if (!legacyService) {
+      return defaultService;
+    }
+
+    return {
+      title: legacyService.title?.trim() || defaultService.title,
+      description: legacyService.description?.trim() || defaultService.description,
+      images: legacyService.image?.trim() ? [legacyService.image.trim()] : [...defaultService.images],
+    };
+  });
+};
+
+const normalizeServices = (incoming: LegacySiteContent) => {
+  const sourceServices = Array.isArray(incoming.services) ? incoming.services : buildLegacyServices(incoming);
+
+  return createDefaultServices().map((defaultService, index) => {
+    const service = sourceServices[index];
+
+    if (!service || typeof service !== 'object') {
+      return defaultService;
+    }
+
+    return {
+      title: typeof service.title === 'string' && service.title.trim() ? service.title.trim() : defaultService.title,
+      description:
+        typeof service.description === 'string' && service.description.trim()
+          ? service.description.trim()
+          : defaultService.description,
+      images: normalizeImageList(service.images, defaultService.images),
+    };
+  });
 };
 
 const normalizeSiteContent = (value: unknown): SiteContent => {
-  const incoming = (value && typeof value === 'object' ? value : {}) as Partial<SiteContent>;
+  const incoming = (value && typeof value === 'object' ? value : {}) as LegacySiteContent;
 
   return {
     heroImage: incoming.heroImage?.trim() || DEFAULT_SITE_CONTENT.heroImage,
@@ -99,21 +212,13 @@ const normalizeSiteContent = (value: unknown): SiteContent => {
     contactAddressLine2: incoming.contactAddressLine2?.trim() || DEFAULT_SITE_CONTENT.contactAddressLine2,
     instagramUrl: incoming.instagramUrl?.trim() || DEFAULT_SITE_CONTENT.instagramUrl,
     instagramLabel: incoming.instagramLabel?.trim() || DEFAULT_SITE_CONTENT.instagramLabel,
-    facebookUrl: incoming.facebookUrl?.trim() || DEFAULT_SITE_CONTENT.facebookUrl,
-    facebookLabel: incoming.facebookLabel?.trim() || DEFAULT_SITE_CONTENT.facebookLabel,
+    tiktokUrl: incoming.tiktokUrl?.trim() || DEFAULT_SITE_CONTENT.tiktokUrl,
+    tiktokLabel: incoming.tiktokLabel?.trim() || DEFAULT_SITE_CONTENT.tiktokLabel,
     mapsEmbedUrl: incoming.mapsEmbedUrl?.trim() || DEFAULT_SITE_CONTENT.mapsEmbedUrl,
     mapsLabel: incoming.mapsLabel?.trim() || DEFAULT_SITE_CONTENT.mapsLabel,
     servicesBadge: incoming.servicesBadge?.trim() || DEFAULT_SITE_CONTENT.servicesBadge,
     servicesTitle: incoming.servicesTitle?.trim() || DEFAULT_SITE_CONTENT.servicesTitle,
-    serviceOneTitle: incoming.serviceOneTitle?.trim() || DEFAULT_SITE_CONTENT.serviceOneTitle,
-    serviceOneDescription: incoming.serviceOneDescription?.trim() || DEFAULT_SITE_CONTENT.serviceOneDescription,
-    serviceOneImage: incoming.serviceOneImage?.trim() || DEFAULT_SITE_CONTENT.serviceOneImage,
-    serviceTwoTitle: incoming.serviceTwoTitle?.trim() || DEFAULT_SITE_CONTENT.serviceTwoTitle,
-    serviceTwoDescription: incoming.serviceTwoDescription?.trim() || DEFAULT_SITE_CONTENT.serviceTwoDescription,
-    serviceTwoImage: incoming.serviceTwoImage?.trim() || DEFAULT_SITE_CONTENT.serviceTwoImage,
-    serviceThreeTitle: incoming.serviceThreeTitle?.trim() || DEFAULT_SITE_CONTENT.serviceThreeTitle,
-    serviceThreeDescription: incoming.serviceThreeDescription?.trim() || DEFAULT_SITE_CONTENT.serviceThreeDescription,
-    serviceThreeImage: incoming.serviceThreeImage?.trim() || DEFAULT_SITE_CONTENT.serviceThreeImage,
+    services: normalizeServices(incoming),
   };
 };
 
@@ -178,6 +283,19 @@ const uploadSiteImageIfNeeded = async (name: string, value: string) => {
   return data.publicUrl;
 };
 
+const prepareServicesForStorage = async (services: ServiceContentItem[]) => {
+  return Promise.all(
+    services.map(async (service, serviceIndex) => ({
+      ...service,
+      images: await Promise.all(
+        service.images.map((image, imageIndex) =>
+          uploadSiteImageIfNeeded(`service-${serviceIndex + 1}-image-${imageIndex + 1}`, image)
+        )
+      ),
+    }))
+  );
+};
+
 export const readSiteContent = async () => {
   if (!isSupabaseConfigured) {
     return DEFAULT_SITE_CONTENT;
@@ -206,9 +324,7 @@ export const writeSiteContent = async (value: SiteContent) => {
     ...normalized,
     heroImage: await uploadSiteImageIfNeeded('hero-image', normalized.heroImage),
     aboutImage: await uploadSiteImageIfNeeded('about-image', normalized.aboutImage),
-    serviceOneImage: await uploadSiteImageIfNeeded('service-one-image', normalized.serviceOneImage),
-    serviceTwoImage: await uploadSiteImageIfNeeded('service-two-image', normalized.serviceTwoImage),
-    serviceThreeImage: await uploadSiteImageIfNeeded('service-three-image', normalized.serviceThreeImage),
+    services: await prepareServicesForStorage(normalized.services),
   };
 
   const supabase = getSupabaseAdmin();

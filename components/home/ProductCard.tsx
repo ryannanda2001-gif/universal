@@ -38,11 +38,6 @@ export function ProductCard({ product, onViewDetail }: ProductCardProps) {
             </span>
           </div>
 
-          {product.discount && product.discount > 0 ? (
-            <div className="absolute right-3 top-3 rounded-full bg-rose-600 px-3 py-1 text-[11px] font-bold text-white shadow-md">
-              Hemat Rp {product.discount.toLocaleString('id-ID')}
-            </div>
-          ) : null}
         </div>
 
         <div className="flex flex-1 flex-col p-3 sm:p-3.5">

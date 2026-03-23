@@ -29,23 +29,7 @@ export default function Home() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const filteredProducts = filterProductsByCategory(orderedProducts, selectedCategory);
-  const services = [
-    {
-      title: siteContent.serviceOneTitle,
-      description: siteContent.serviceOneDescription,
-      image: siteContent.serviceOneImage,
-    },
-    {
-      title: siteContent.serviceTwoTitle,
-      description: siteContent.serviceTwoDescription,
-      image: siteContent.serviceTwoImage,
-    },
-    {
-      title: siteContent.serviceThreeTitle,
-      description: siteContent.serviceThreeDescription,
-      image: siteContent.serviceThreeImage,
-    },
-  ];
+  const services = siteContent.services;
 
   const handleViewProduct = (product: Product) => {
     rememberPreferredCategory(product.category);
@@ -130,8 +114,8 @@ export default function Home() {
           addressLine2={siteContent.contactAddressLine2}
           instagramUrl={siteContent.instagramUrl}
           instagramLabel={siteContent.instagramLabel}
-          facebookUrl={siteContent.facebookUrl}
-          facebookLabel={siteContent.facebookLabel}
+          tiktokUrl={siteContent.tiktokUrl}
+          tiktokLabel={siteContent.tiktokLabel}
           mapsEmbedUrl={siteContent.mapsEmbedUrl}
           mapsLabel={siteContent.mapsLabel}
         />
