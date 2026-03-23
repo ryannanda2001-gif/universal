@@ -39,7 +39,7 @@ export function ProductDetailModal({
         </button>
 
         <div className="flex w-full flex-col bg-white md:w-[56%]">
-          <div className="relative flex min-h-[340px] flex-1 items-center justify-center overflow-hidden bg-white p-4 md:min-h-[620px] md:p-6">
+          <div className="relative flex min-h-[340px] flex-1 items-center justify-center bg-white p-4 md:min-h-[620px] md:p-6">
             {product.images[currentImageIndex] ? (
               <div className="mx-auto w-full max-w-[680px] aspect-square bg-slate-100 rounded-[28px] p-4">
                <img
